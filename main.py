@@ -18,7 +18,8 @@ import self_anticipation_planner
 
 
 class Agent(object):
-    def __init__(self, trajectory_me, trajectory_you, initial_ang, subgoal_p, planner, d_t=0.03):
+    def __init__(self, trajectory_me, trajectory_you,
+                 initial_ang, subgoal_p, planner, d_t=0.03):
         self.trajectory_me = trajectory_me[:-1]
         self.trajectory_you = trajectory_you[:-1]
         self.p = trajectory_me[-1]
@@ -36,8 +37,8 @@ class Agent(object):
         pass
 
     def decide_action(self):
-        raise   NotImplementedError(
-        "You have to extend Agentclass if you want to use this module")
+        raise NotImplementedError(
+            "You have to extend Agentclass if you want to use this module")
 
     def move(self):
         self.p = self.p + self.v
@@ -68,8 +69,8 @@ class Logger(object):
         self.f_p.append(p)
 
     def display(self):
-        plt.plot(*np.array(self.l_p).T, "-*", label = "a")
-        plt.plot(*np.array(self.f_p).T, "-o", label = "b")
+        plt.plot(*np.array(self.l_p).T, "-*", label="a")
+        plt.plot(*np.array(self.f_p).T, "-o", label="b")
         plt.xlim(0, 5)  # 表の軸を0~20に固定
         plt.ylim(0, 5)  # 表の軸を0~20に固定
         plt.grid()
@@ -92,13 +93,13 @@ if __name__ == '__main__':
     l_v_max = 3
     f_v_max = 2
     trajectory_a = np.array([[1, 1],
-                              [1.03, 1.03],
-                              [1.06, 1.06],
-                              [1.09, 1.09]])
+                             [1.03, 1.03],
+                             [1.06, 1.06],
+                             [1.09, 1.09]])
     trajectory_b = np.array([[1.5, 0.5],
-                               [1.53, 0.53],
-                               [1.56, 0.56],
-                               [1.59, 0.59]])
+                             [1.53, 0.53],
+                             [1.56, 0.56],
+                             [1.56, 0.59]])
     initial_ang = 0
     num_grid_x = 15
     num_grid_y = 15
@@ -119,8 +120,10 @@ if __name__ == '__main__':
     planner = self_anticipation_planner.StandardPlanner(
         num_grid_x, num_grid_y, search_range_x, search_range_y,
         k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t)
-    human_a = Human(trajectory_a, trajectory_b, initial_ang, subgoals_p, planner)
-    human_b = Human(trajectory_b, trajectory_a, initial_ang, subgoals_p, planner)
+    human_a = Human(
+        trajectory_a, trajectory_b, initial_ang, subgoals_p, planner)
+    human_b = Human(
+        trajectory_b, trajectory_a, initial_ang, subgoals_p, planner)
     logger = Logger(length_step)
 
     logger.log_leader(human_a.p)
