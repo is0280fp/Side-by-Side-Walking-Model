@@ -45,9 +45,8 @@ class StandardPlanner(object):
             self.linear_extrapolation(trajectory_me)
         grid_points = grid_points + midle_point
         m_v_you, m_w_you, next_ang_you, ang_you, m_a_you = \
-            self.calculation_motion_factors(
-                    prev_p_you, p_you,
-                    next_p_you, d_you, next_d_you)
+            self.calculation_motion_factors(prev_p_you, p_you,
+                                            next_p_you, d_you, next_d_you)
 
         for next_p_me in grid_points:
             next_d_me = next_p_me - p_me
@@ -97,7 +96,7 @@ class StandardPlanner(object):
 
     def angb(self, p1, p2):
         d = p1 - p2
-        return np.arctan2(d[1], d[0])
+        return np.abs(np.arctan2(d[1], d[0]))
 
     def f(self, x, a=0.25, b=2.00, c=0.75):
         """
@@ -163,8 +162,8 @@ class StandardPlanner(object):
         r_v = np.linalg.norm((next_d_me - next_d_you) / self.d_t)  # relative_v
         return r_d, r_a, r_v
 
-    def calculation_environmental_factors(self, subgoals_p, p, next_p):
-        e_s = self.angb(subgoals_p, p) - \
+    def calculation_environmental_factors(self, subgoal_p, p, next_p):
+        e_s = self.angb(subgoal_p, p) - \
             self.angb(next_p, p)
         return e_s
 
