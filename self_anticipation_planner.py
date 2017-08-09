@@ -97,7 +97,7 @@ class StandardPlanner(object):
 
     def angb(self, p1, p2):
         d = p1 - p2
-        return np.arctan2(d[1], d[0])
+        return np.abs(np.arctan2(d[1], d[0]))
 
     def f(self, x, a=0.25, b=2.00, c=0.75):
         """
@@ -156,6 +156,8 @@ class StandardPlanner(object):
 
     def calculation_relative_factors(self, next_p_me, next_p_you,
                                      next_d_me, next_d_you, next_ang_you):
+        next_ang_you = np.arctan(
+                next_d_you[1]/next_d_you[0])  # 予測した変化量に基づく次回のベクトル
         # (relative factor)
         r_d = np.linalg.norm(next_p_you - next_p_me)  # socialrelativedistance
         r_a = next_ang_you - self.angb(next_p_me, next_p_you)
