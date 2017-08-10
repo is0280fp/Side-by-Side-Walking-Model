@@ -96,8 +96,24 @@ class StandardPlanner(object):
         return (next_v - v) / d_t
 
     def angb(self, p1, p2):
-        d = p1 - p2
-        return np.abs(np.arctan2(d[1], d[0]))
+        # p2からみたp1の相対位置ベクトルの絶対角度
+        d = np.arctan2(p1[1] - p2[1], p1[0] - p2[0])
+        return d
+
+    def revision_theta(self, theta):
+        if 0 <= theta <= np.pi or - np.pi <= theta <= 0:
+            r_a = theta
+        elif - 2 * np.pi <= theta < - np.pi:
+            r_a = theta + np.pi * 2
+        return np.abs(r_a)
+
+    def relative_angle(self, next_p_me, next_p_you, next_d_you):
+        # youの進行方向の絶対角度
+        theta_mae = np.arctan2(next_d_you[1], next_d_you[0])
+        theta_yoko = self.angb(next_p_me, next_p_you)
+        theta = theta_yoko - theta_mae
+        r_a = self.revision_theta(theta)
+        return r_a
 
     def f(self, x, a=0.25, b=2.00, c=0.75):
         """
@@ -125,8 +141,7 @@ class StandardPlanner(object):
                         prev_p_me, p_me, next_p_me,
                         d_me, next_d_me)
         r_d, r_a, r_v = self.calculation_relative_factors(
-                next_p_me, next_p_you, next_d_me,
-                next_d_you, next_ang_you)
+                next_p_me, next_p_you, next_d_me, next_d_you)
         e_s_me = self.calculation_environmental_factors(
                 subgoal_p, p_me, next_p_me)
         # utilityの計算
@@ -146,21 +161,21 @@ class StandardPlanner(object):
     def calculation_motion_factors(self, prev_p, p, next_p, d, next_d):
         motion_v = self.m_v(p, next_p, self.d_t)
         # 現在の位置と予測した位置に基づいた現在の速さ
-        ang = np.arctan(d[1]/d[0])  # 現在のベクトル
-        next_ang = np.arctan(
-                next_d[1]/next_d[0])  # 予測した変化量に基づく次回のベクトル
+#        ang = np.arctan(d[1]/d[0])  # 現在のベクトル
+#        next_ang = np.arctan(
+#                next_d[1]/next_d[0])  # 予測した変化量に基づく次回のベクトル
+        ang = self.angb(p, prev_p)       # 時刻tのd_t(direction=向き)
+        next_ang = self.angb(next_p, p)  # 時刻tのd_t+1(direction=向き)
         motion_w = self.m_w(ang, next_ang, self.d_t)  # 現在と予測による角速度
         prev_m_v = self.m_v(prev_p, p, self.d_t)
         motion_a = self.m_a(prev_m_v, motion_v, self.d_t)
         return motion_v, motion_w, next_ang, ang, motion_a
 
     def calculation_relative_factors(self, next_p_me, next_p_you,
-                                     next_d_me, next_d_you, next_ang_you):
-        next_ang_you = np.arctan(
-                next_d_you[1]/next_d_you[0])  # 予測した変化量に基づく次回のベクトル
+                                     next_d_me, next_d_you):
         # (relative factor)
         r_d = np.linalg.norm(next_p_you - next_p_me)  # socialrelativedistance
-        r_a = next_ang_you - self.angb(next_p_me, next_p_you)
+        r_a = self.relative_angle(next_p_me, next_p_you, next_d_you)
         # relative_angle
         r_v = np.linalg.norm((next_d_me - next_d_you) / self.d_t)  # relative_v
         return r_d, r_a, r_v
