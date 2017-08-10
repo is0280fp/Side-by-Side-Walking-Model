@@ -24,20 +24,24 @@ def angb(next_p_me, next_p_you, next_d_you):
 #        r_a = theta
 #    else:
 #        r_a = theta - 360
-    if 0 <= theta <= 180 or -180 <= theta <= 0:
+    if 0 <= theta <= np.pi or - np.pi <= theta <= 0:
         print("1", theta)
+        print("")
         r_a = theta
-    elif 180 < theta <= 360:
-        print("2", theta)
-        r_a = theta - 360
-    else:
+    elif - 2 * np.pi <= theta < - np.pi:
         print("3", theta)
-        r_a = theta + 360
+        print("")
+        r_a = theta + np.pi * 2
+    else:                         # 今回の場合、この条件に該当するthetaは無し
+        print("2", theta)
+        print("")
+        r_a = theta - np.pi * 2
+
     return np.abs(r_a)
 
 
 def calculation_relative_angle(next_p_me, next_p_you, next_d_you):
-    assert(isinstance(next_p_me, np.ndarray) and next_p_me.shape == (2,))
+#    assert(isinstance(next_p_me, np.ndarray) and next_p_me.shape == (2,))
     r_a = angb(next_p_me, next_p_you, next_d_you)
     # relative_angle
     return r_a
@@ -50,13 +54,25 @@ class TestRelativeAngle(unittest.TestCase):
         np.testing.assert_allclose(r_a, r_a_actual)
 
     def test_relative_angle(self):
-        p_me = np.array([[2, 2], [1, 2], [1, 4], [1, 2], [2, 2]])
-        p_you = np.array([[1, 2], [2, 2], [1, 2], [1, 4], [1, 1]])
-        d_you = np.array([[0, 1], [0, 1], [0, 2], [0, 1], [1, 1]])
-        r_a = np.array([np.pi / 2,  np.pi / 2, 0, np.pi, np.pi / 4])
-
-        for i in np.arange(5):
-            self.check_relative_angle(p_me[i], p_you[i], d_you[i], r_a[i])
+        self.check_relative_angle([2, 2], [1, 2], [0, 1], np.pi / 2)
+        self.check_relative_angle([1, 2], [2, 2], [0, 1], np.pi / 2)
+        self.check_relative_angle([1, 4], [1, 2], [0, 2], 0)
+        self.check_relative_angle([1, 2], [1, 4], [0, 1], np.pi)
+        self.check_relative_angle([2, 2], [1, 1], [0, 1], np.pi / 4)
+        self.check_relative_angle([1, 1], [2, 2], [0, 1], np.pi * 3 / 4)
+        self.check_relative_angle([2, 2], [1, 1], [1, 1], 0)
+        self.check_relative_angle([1, 1], [2, 2], [2, 2], np.pi)
+        self.check_relative_angle(
+                [6, 6], [3, 3], [np.sqrt(3), 3], np.pi * 1 / 12)
+        self.check_relative_angle(
+                [3, 3], [6, 6], [np.sqrt(3), 3], np.pi * 11 / 12)
+        self.check_relative_angle([1, 1], [2, 2], [1, 0], np.pi * 3 / 4)
+        self.check_relative_angle([1, 1], [2, 2], [-1, 0], np.pi / 4)
+        self.check_relative_angle([1, 1], [2, 2], [-1, -1], 0)
+        self.check_relative_angle([2, 2], [1, 1], [-0.5, -0.5], np.pi)
+        self.check_relative_angle([3, 1], [2, 2], [-2, 2], np.pi)
+        self.check_relative_angle(
+                [2 + np.sqrt(3), 1], [2, 2], [-2, 2], np.pi * 11 / 12)
 
 
 if __name__ == '__main__':
