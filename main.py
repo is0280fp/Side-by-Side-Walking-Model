@@ -12,9 +12,10 @@ Created on Wed May 24 16:09:19 2017
 @author: yume
 """
 #import extend_planner
-import self_anticipation_planner
+import copy
 import matplotlib.pyplot as plt
 import numpy as np
+import self_anticipation_planner
 
 
 class Agent(object):
@@ -40,7 +41,11 @@ class Agent(object):
                 "You have to extend Agentclass if you want to use this module")
 
     def move(self):
-        self.s.p = self.s.p + self.d
+        self.s.p = self.s.p + self.v
+        self.s.d = self.v
+
+    def __repr__(self):
+        return repr(self.s)
 
 
 class AgentState(object):
@@ -61,24 +66,26 @@ class Human(Agent):
         next_p = self.planner.decide_action(
                 self.trajectory_me, self.trajectory_you, subgoal_p)
         current_p = self.s.p
-        self.d = next_p - current_p
+        self.v = next_p - current_p
 
 
 class Logger(object):
     def __init__(self, length_step):
-        self.l_p = []  # 現在位置を格納するリスト
-        self.f_p = []  # 現在位置を格納するリスト
+        self.l_s = []  # 現在位置を格納するリスト
+        self.f_s = []  # 現在位置を格納するリスト
         self.length_step = length_step
 
     def log_leader(self, s):
-        self.l_p.append(s.p)
+        self.l_s.append(copy.copy(s))
 
     def log_follower(self, s):
-        self.f_p.append(s.p)
+        self.f_s.append(copy.copy(s))
 
     def display(self):
-        plt.plot(*np.array(self.l_p).T, "-*", label="a")
-        plt.plot(*np.array(self.f_p).T, "-o", label="b")
+        l_p = np.array([s.p for s in self.l_s])
+        f_p = np.array([s.p for s in self.f_s])
+        plt.plot(*l_p.T, "-*", label="a")
+        plt.plot(*f_p.T, "-o", label="b")
         plt.xlim(0, 5)  # 表の軸を0~20に固定
         plt.ylim(0, 5)  # 表の軸を0~20に固定
         plt.grid()
@@ -94,6 +101,20 @@ class Logger(object):
         plt.draw()
 
 
+def make_trajectory(ps):
+    ps = np.array(ps)
+    trajectory = []
+    prev_p = ps[0]
+    state = AgentState(prev_p)
+    trajectory.append(state)
+    for p in ps[1:]:
+        d = p - prev_p
+        state = AgentState(p, d)
+        trajectory.append(state)
+        prev_p = p
+    return trajectory
+
+
 if __name__ == '__main__':
     # 表描画
     goal_x = 11
@@ -104,26 +125,34 @@ if __name__ == '__main__':
 #                             [1.03, 1.03],
 #                             [1.06, 1.06],
 #                             [1.09, 1.09]])
-    trajectory_a = [AgentState((1, 1)),
-                    AgentState((1.03, 1.03)),
-                    AgentState((1.06, 1.06)),
-                    AgentState((1.09, 1.09))]
+#    trajectory_a = [AgentState((1, 1)),
+#                    AgentState((1.03, 1.03)),
+#                    AgentState((1.06, 1.06)),
+#                    AgentState((1.09, 1.09))]
+    trajectory_a = make_trajectory([[1, 1],
+                                    [1.03, 1.03],
+                                    [1.06, 1.06],
+                                    [1.09, 1.09]])
+    trajectory_b = make_trajectory([[1.5, 0.5],
+                                    [1.53, 0.53],
+                                    [1.56, 0.56],
+                                    [1.59, 0.59]])
 #    trajectory_b = np.array([[1.5, 0.5],
 #                             [1.53, 0.53],
 #                             [1.56, 0.56],
 #                             [1.59, 0.59]])
-    trajectory_b = [AgentState((1.5, 0.5)),
-                    AgentState((1.53, 0.53)),
-                    AgentState((1.56, 0.56)),
-                    AgentState((1.59, 0.59))]
+#    trajectory_b = [AgentState((1.5, 0.5)),
+#                    AgentState((1.53, 0.53)),
+#                    AgentState((1.56, 0.56)),
+#                    AgentState((1.59, 0.59))]
     d_t = 0.03
     k_o = 0.11
     k_rv = 0.01
     k_rd = 0.25
-    num_grid_x = 15
-    num_grid_y = 15
-    search_range_x = 0.1
-    search_range_y = 0.1
+    num_grid_x = 7
+    num_grid_y = 7
+    search_range_x = 0.6
+    search_range_y = 0.6
     k_ra = 0.32  # ra = relative_angle
     k_s = 0.2
     k_ma = 0.01
