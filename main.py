@@ -164,7 +164,7 @@ if __name__ == '__main__':
 #    planner = extend_planner.ExtendPlanner(
 #        num_grid_x, num_grid_y, search_range_x, search_range_y,
 #        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t)
-    planner = self_anticipation_planner.StandardPlanner(
+    planner = self_anticipation_planner.SelfAnticipationPlanner(
         num_grid_x, num_grid_y, search_range_x, search_range_y,
         k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t)
     human_a = Human(
