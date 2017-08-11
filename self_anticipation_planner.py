@@ -7,11 +7,14 @@ Created on Thu Jul 20 18:06:45 2017
 
 import numpy as np
 import matplotlib.pyplot as plt
+from main import AgentState
 
 
-class StandardPlanner():
-    def __init__(self, num_grid_x, num_grid_y, search_range_x, search_range_y,
-                 k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t):
+class SelfAnticipationPlanner(object):
+    def __init__(self, num_grid_x=7, num_grid_y=7,
+                 search_range_x=0.6, search_range_y=0.6,
+                 k_o=0.11, k_rv=0.01, k_rd=0.25, k_ra=0.32, k_s=0.2,
+                 k_ma=0.01, k_mv=0.05, k_mw=0.01 ,d_t=0.03):
         self.num_grid_x = num_grid_x
         self.num_grid_y = num_grid_y
         self.search_range_x = search_range_x
@@ -29,30 +32,28 @@ class StandardPlanner():
     def decide_action(self, trajectory_me, trajectory_you, subgoal_p):
         utility = []
 
-        p_me = trajectory_me[-1].p  # 真の位置
-        p_you = trajectory_you[-1].p
-        prev_p_me = trajectory_me[-2].p  # 真の位置
-        prev_p_you = trajectory_you[-2].p
-        next_p_you, d_you = self.linear_extrapolation(
-            trajectory_you)  # 予測した次の位置と変化量
-        next_d_you = next_p_you - p_you  # 予測した次の変化量
+        s_me = trajectory_me[-1]  # 真の位置
+        s_you = trajectory_you[-1]
+        prev_s_me = trajectory_me[-2]  # 真の位置
+        prev_s_you = trajectory_you[-2]
+        # 予測した次の位置と変化量
+        next_s_me = self.linear_extrapolation(trajectory_me)
+        next_s_you = self.linear_extrapolation(trajectory_you)
 
+        # 予測位置を中心としたグリッドを作成
         grid_points = self.making_grid(
                 self.num_grid_x, self.num_grid_y,
                 self.search_range_x, self.search_range_y)
-        # 予測位置を中心としたグリッドを作成
-        midle_point, d_me = \
-            self.linear_extrapolation(trajectory_me)
-        grid_points = grid_points + midle_point
-        m_v_you, m_w_you, next_ang_you, ang_you, m_a_you = \
-            self.calculation_motion_factors(prev_p_you, p_you,
-                                            next_p_you, d_you, next_d_you)
+
+        grid_points = grid_points + next_s_me.p
+        m_v_you, m_w_you, m_a_you = \
+            self.calculation_motion_factors(prev_s_you, s_you, next_s_you)
 
         for next_p_me in grid_points:
-            next_d_me = next_p_me - p_me
+            next_d_me = next_p_me - s_me.p
+            next_s_me = AgentState(next_p_me, next_d_me)
             u = self.calculation_utility(
-                    prev_p_me, p_me, next_p_me, d_me, next_d_me, next_p_you,
-                    next_d_you, next_ang_you, subgoal_p)
+                    prev_s_me, s_me, next_s_me, next_s_you, subgoal_p)
             utility.append(u)
 
         utility = np.array(utility).reshape(self.num_grid_y, self.num_grid_x)
@@ -74,25 +75,32 @@ class StandardPlanner():
             d(ndarray):
                 p_t - p.{t-1}
         """
-        d = trajectory[-1].p - trajectory[-2].p
-        next_p = trajectory[-1].p + d
-        return next_p, d
+        next_d = trajectory[-1].p - trajectory[-2].p
+        next_p = trajectory[-1].p + next_d
+        return AgentState(next_p, next_d)
 
-    def m_v(self, p, next_p, d_t):
+    def m_v(self, s, next_s):
         """eq. (1)
         """
-        m_v = np.sqrt(np.sum((next_p - p) ** 2)) / d_t
+        p = s.p
+        next_p = next_s.p
+        m_v = np.sqrt(np.sum((next_p - p) ** 2)) / self.d_t
         return m_v
 
-    def m_w(self, ang, next_ang, d_t):
+    def m_w(self, prev_s, s, next_s):
         """eq. (2)
         """
-        return (next_ang - ang) / d_t
+        p = s.p
+        prev_p = prev_s.p
+        next_p = next_s.p
+        ang = self.angb(p, prev_p)       # 時刻tのd_t(direction=向き)
+        next_ang = self.angb(next_p, p)  # 時刻tのd_t+1(direction=向き)
+        return (next_ang - ang) / self.d_t
 
-    def m_a(self, v, next_v, d_t):
+    def m_a(self, v, next_v):
         """eq. (3)
         """
-        return (next_v - v) / d_t
+        return (next_v - v) / self.d_t
 
     def angb(self, p1, p2):
         # p2からみたp1の相対位置ベクトルの絶対角度
@@ -104,15 +112,18 @@ class StandardPlanner():
             r_a = theta
         elif - 2 * np.pi <= theta < - np.pi:
             r_a = theta + np.pi * 2
-        return np.abs(r_a)
+        return r_a
 
-    def relative_angle(self, next_p_me, next_p_you, next_d_you):
+    def relative_angle(self, s_me, s_you):
+        p_me = s_me.p
+        p_you = s_you.p
+        d_you = s_you.d
         # youの進行方向の絶対角度
-        theta_mae = np.arctan2(next_d_you[1], next_d_you[0])
-        theta_yoko = self.angb(next_p_me, next_p_you)
+        theta_mae = np.arctan2(d_you[1], d_you[0])
+        theta_yoko = self.angb(p_me, p_you)
         theta = theta_yoko - theta_mae
         r_a = self.revision_theta(theta)
-        return r_a
+        return np.abs(r_a)
 
     def f(self, x, a=0.25, b=2.00, c=0.75):
         """
@@ -133,16 +144,13 @@ class StandardPlanner():
         return grid_points
 
     def calculation_utility(
-            self, prev_p_me, p_me, next_p_me, d_me, next_d_me, next_p_you,
-            next_d_you, next_ang_you, subgoal_p):
-        m_v_me, m_w_me, next_ang_me, ang_me, m_a_me = \
-                self.calculation_motion_factors(
-                        prev_p_me, p_me, next_p_me,
-                        d_me, next_d_me)
+            self, prev_s_me, s_me, next_s_me, next_s_you, subgoal_p):
+        m_v_me, m_w_me, m_a_me = \
+                self.calculation_motion_factors(prev_s_me, s_me, next_s_me)
         r_d, r_a, r_v = self.calculation_relative_factors(
-                next_p_me, next_p_you, next_d_me, next_d_you)
+                next_s_me, next_s_you)
         e_s_me = self.calculation_environmental_factors(
-                subgoal_p, p_me, next_p_me)
+                subgoal_p, s_me, next_s_me)
         # utilityの計算
         f_o = 0
         f_rv = self.f(r_v, 0.2, 1.2, 0)
@@ -157,29 +165,32 @@ class StandardPlanner():
                    self.k_ma * f_ma + self.k_mv * f_mv + self.k_mw * f_mw)
         return utility
 
-    def calculation_motion_factors(self, prev_p, p, next_p, d, next_d):
-        motion_v = self.m_v(p, next_p, self.d_t)
+    def calculation_motion_factors(self, prev_s, s, next_s):
+        motion_v = self.m_v(s, next_s)
         # 現在の位置と予測した位置に基づいた現在の速さ
 #        ang = np.arctan(d[1]/d[0])  # 現在のベクトル
 #        next_ang = np.arctan(
 #                next_d[1]/next_d[0])  # 予測した変化量に基づく次回のベクトル
-        ang = self.angb(p, prev_p)       # 時刻tのd_t(direction=向き)
-        next_ang = self.angb(next_p, p)  # 時刻tのd_t+1(direction=向き)
-        motion_w = self.m_w(ang, next_ang, self.d_t)  # 現在と予測による角速度
-        prev_m_v = self.m_v(prev_p, p, self.d_t)
-        motion_a = self.m_a(prev_m_v, motion_v, self.d_t)
-        return motion_v, motion_w, next_ang, ang, motion_a
+        motion_w = self.m_w(prev_s, s, next_s)  # 現在と予測による角速度
+        prev_m_v = self.m_v(prev_s, s)
+        motion_a = self.m_a(prev_m_v, motion_v)
+        return motion_v, motion_w, motion_a
 
-    def calculation_relative_factors(self, next_p_me, next_p_you,
-                                     next_d_me, next_d_you):
+    def calculation_relative_factors(self, s_me, s_you):
+        p_you = s_you.p
+        p_me = s_me.p
+        d_you = s_you.d
+        d_me = s_me.d
         # (relative factor)
-        r_d = np.linalg.norm(next_p_you - next_p_me)  # socialrelativedistance
-        r_a = self.relative_angle(next_p_me, next_p_you, next_d_you)
+        r_d = np.linalg.norm(p_you - p_me)  # socialrelativedistance
+        r_a = self.relative_angle(s_me, s_you)
         # relative_angle
-        r_v = np.linalg.norm((next_d_me - next_d_you) / self.d_t)  # relative_v
+        r_v = np.linalg.norm((d_me - d_you) / self.d_t)  # relative_v
         return r_d, r_a, r_v
 
-    def calculation_environmental_factors(self, subgoal_p, p, next_p):
+    def calculation_environmental_factors(self, subgoal_p, s, next_s):
+        p = s.p
+        next_p = next_s.p
         e_s = self.angb(subgoal_p, p) - \
             self.angb(next_p, p)
         return e_s
@@ -208,7 +219,7 @@ if __name__ == '__main__':
     k_mv = 0.05
     k_mw = 0.01
     subgoals_p = (4, 4)
-    planner = StandardPlanner(num_grid_x, num_grid_y, search_range_x,
+    planner = SelfAnticipationPlanner(num_grid_x, num_grid_y, search_range_x,
                               search_range_y, k_o, k_rv, k_rd,
                               k_ra, k_s, k_ma, k_mv, k_mw, d_t)
     print(planner.decide_action(trajectory_me, trajectory_you, subgoals_p))
