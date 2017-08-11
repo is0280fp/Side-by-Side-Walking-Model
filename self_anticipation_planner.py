@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-class StandardPlanner(object):
+class StandardPlanner():
     def __init__(self, num_grid_x, num_grid_y, search_range_x, search_range_y,
                  k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t):
         self.num_grid_x = num_grid_x
@@ -29,10 +29,10 @@ class StandardPlanner(object):
     def decide_action(self, trajectory_me, trajectory_you, subgoal_p):
         utility = []
 
-        p_me = trajectory_me[-1]  # 真の位置
-        p_you = trajectory_you[-1]
-        prev_p_me = trajectory_me[-2]  # 真の位置
-        prev_p_you = trajectory_you[-2]
+        p_me = trajectory_me[-1].p  # 真の位置
+        p_you = trajectory_you[-1].p
+        prev_p_me = trajectory_me[-2].p  # 真の位置
+        prev_p_you = trajectory_you[-2].p
         next_p_you, d_you = self.linear_extrapolation(
             trajectory_you)  # 予測した次の位置と変化量
         next_d_you = next_p_you - p_you  # 予測した次の変化量
@@ -75,8 +75,8 @@ class StandardPlanner(object):
             d(ndarray):
                 p_t - p.{t-1}
         """
-        d = trajectory[-1] - trajectory[-2]
-        next_p = trajectory[-1] + d
+        d = trajectory[-1].p - trajectory[-2].p
+        next_p = trajectory[-1].p + d
         return next_p, d
 
     def m_v(self, p, next_p, d_t):
