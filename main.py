@@ -15,7 +15,7 @@ Created on Wed May 24 16:09:19 2017
 import copy
 import matplotlib.pyplot as plt
 import numpy as np
-import self_anticipation_planner
+import extend_self_anticipation_planner
 
 
 class Agent(object):
@@ -176,10 +176,10 @@ if __name__ == '__main__':
 #    planner = extend_planner.ExtendPlanner(
 #        num_grid_x, num_grid_y, search_range_x, search_range_y,
 #        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t)
-    planner_a = self_anticipation_planner.SelfAnticipationPlanner(
+    planner_a = extend_self_anticipation_planner.ExtendSelfAnticipationPlanner(
         num_grid_x, num_grid_y, search_range_x, search_range_y,
         k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t)
-    planner_b = self_anticipation_planner.SelfAnticipationPlanner(
+    planner_b = extend_self_anticipation_planner.ExtendSelfAnticipationPlanner(
         num_grid_x, num_grid_y, search_range_x, search_range_y,
         k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t)
     human_a = Human(
