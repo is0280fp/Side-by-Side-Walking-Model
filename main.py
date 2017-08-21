@@ -100,6 +100,18 @@ class Logger(object):
         self.display()
         plt.draw()
 
+    def print(self):
+        print("a_s")
+        print("\n".join(
+                ["{}: {}".format(i, s) for i, s in enumerate(logger.l_s)]))
+#  print("\n".join([str(i) + ": " + str(s) for i, s in enumerate(logger.l_s)]))
+        print()
+        print("b_s")
+        print("\n".join(
+                ["{}: {}".format(i, s) for i, s in enumerate(logger.f_s)]))
+        print()
+        print()
+
 
 def make_trajectory(ps):
     ps = np.array(ps)
@@ -164,13 +176,16 @@ if __name__ == '__main__':
 #    planner = extend_planner.ExtendPlanner(
 #        num_grid_x, num_grid_y, search_range_x, search_range_y,
 #        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t)
-    planner = self_anticipation_planner.SelfAnticipationPlanner(
+    planner_a = self_anticipation_planner.SelfAnticipationPlanner(
+        num_grid_x, num_grid_y, search_range_x, search_range_y,
+        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t)
+    planner_b = self_anticipation_planner.SelfAnticipationPlanner(
         num_grid_x, num_grid_y, search_range_x, search_range_y,
         k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t)
     human_a = Human(
-            trajectory_a, trajectory_b, subgoals_p, planner)
+            trajectory_a, trajectory_b, subgoals_p, planner_a)
     human_b = Human(
-            trajectory_b, trajectory_a, subgoals_p, planner)
+            trajectory_b, trajectory_a, subgoals_p, planner_b)
     logger = Logger(length_step)
 
     logger.log_leader(human_a.s)
@@ -194,6 +209,7 @@ if __name__ == '__main__':
 
         print("step", n)
         logger.display()
+        logger.print()
 
         n += 1  # インクリメント
 #    logger.display()
