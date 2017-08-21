@@ -100,6 +100,18 @@ class Logger(object):
         self.display()
         plt.draw()
 
+    def print(self):
+        print("a_s")
+        print("\n".join(
+                ["{}: {}".format(i, s) for i, s in enumerate(logger.l_s)]))
+#  print("\n".join([str(i) + ": " + str(s) for i, s in enumerate(logger.l_s)]))
+        print()
+        print("b_s")
+        print("\n".join(
+                ["{}: {}".format(i, s) for i, s in enumerate(logger.f_s)]))
+        print()
+        print()
+
 
 def make_trajectory(ps):
     ps = np.array(ps)
@@ -194,6 +206,7 @@ if __name__ == '__main__':
 
         print("step", n)
         logger.display()
+        logger.print()
 
         n += 1  # インクリメント
 #    logger.display()
