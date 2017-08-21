@@ -141,14 +141,14 @@ if __name__ == '__main__':
 #                    AgentState((1.03, 1.03)),
 #                    AgentState((1.06, 1.06)),
 #                    AgentState((1.09, 1.09))]
-    trajectory_a = make_trajectory([[1, 1],
-                                    [1.03, 1.03],
-                                    [1.06, 1.06],
-                                    [1.09, 1.09]])
-    trajectory_b = make_trajectory([[1.5, 0.5],
-                                    [1.53, 0.53],
-                                    [1.56, 0.56],
-                                    [1.59, 0.59]])
+    trajectory_a = make_trajectory([[0.91, 0.91],
+                                    [0.94, 0.94],
+                                    [0.97, 0.97],
+                                    [1, 1]])
+    trajectory_b = make_trajectory([[1.41, 0.41],
+                                    [1.44, 0.44],
+                                    [1.47, 0.47],
+                                    [1.5, 0.5]])
 #    trajectory_b = np.array([[1.5, 0.5],
 #                             [1.53, 0.53],
 #                             [1.56, 0.56],

@@ -129,14 +129,14 @@ if __name__ == '__main__':
     l_v_max = 3
     f_v_max = 2
 
-    trajectory_a = make_trajectory([[1, 1],
-                                    [1.03, 1.03],
-                                    [1.06, 1.06],
-                                    [1.09, 1.09]])
-    trajectory_b = make_trajectory([[1.5, 0.5],
-                                    [1.53, 0.53],
-                                    [1.56, 0.56],
-                                    [1.59, 0.59]])
+    trajectory_a = make_trajectory([[0.91, 0.91],
+                                    [0.94, 0.94],
+                                    [0.97, 0.97],
+                                    [1, 1]])
+    trajectory_b = make_trajectory([[1.41, 0.41],
+                                    [1.44, 0.44],
+                                    [1.47, 0.47],
+                                    [1.5, 0.5]])
 #    trajectory_a = make_trajectory([[2, 2],
 #                                    [2.03, 2.03],
 #                                    [2.06, 2.06],
@@ -157,9 +157,9 @@ if __name__ == '__main__':
     k_ra = 0.32  # ra = relative_angle
     k_s = 0.2
     k_ma = 0.01
-    k_mv = 0.00
+    k_mv = 0.05
     k_mw = 0.01
-    subgoals_p = [(5, 5)]
+    subgoals_p = [(4, 3.5)]
     length_step = 7
     relative_angle_a = 90
     relative_angle_b = 180 - relative_angle_a
