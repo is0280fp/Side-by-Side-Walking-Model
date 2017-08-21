@@ -5,17 +5,11 @@ Created on Fri Jul 14 21:56:53 2017
 @author: yume
 """
 
-# -*- coding: utf-8 -*-
-"""
-Created on Wed May 24 16:09:19 2017
-
-@author: yume
-"""
-#import extend_planner
 import copy
 import matplotlib.pyplot as plt
 import numpy as np
-import self_anticipation_planner
+# import self_anticipation_planner
+import extend_self_anticipation_planner
 
 
 class Agent(object):
@@ -100,6 +94,18 @@ class Logger(object):
         self.display()
         plt.draw()
 
+    def print(self):
+        print("a_s")
+        print("\n".join(
+                ["{}: {}".format(i, s) for i, s in enumerate(logger.l_s)]))
+#  print("\n".join([str(i) + ": " + str(s) for i, s in enumerate(logger.l_s)]))
+        print()
+        print("b_s")
+        print("\n".join(
+                ["{}: {}".format(i, s) for i, s in enumerate(logger.f_s)]))
+        print()
+        print()
+
 
 def make_trajectory(ps):
     ps = np.array(ps)
@@ -121,56 +127,55 @@ if __name__ == '__main__':
     relative_pos = 2
     l_v_max = 3
     f_v_max = 2
-#    trajectory_a = np.array([[1, 1],
-#                             [1.03, 1.03],
-#                             [1.06, 1.06],
-#                             [1.09, 1.09]])
-#    trajectory_a = [AgentState((1, 1)),
-#                    AgentState((1.03, 1.03)),
-#                    AgentState((1.06, 1.06)),
-#                    AgentState((1.09, 1.09))]
-    trajectory_a = make_trajectory([[1, 1],
+
+#    trajectory_a = make_trajectory([[1, 1],
+#                                    [1.03, 1.03],
+#                                    [1.06, 1.06],
+#                                    [1.09, 1.09]])
+#    trajectory_b = make_trajectory([[1.5, 0.5],
+#                                    [1.53, 0.53],
+#                                    [1.56, 0.56],
+#                                    [1.59, 0.59]])
+    trajectory_a = make_trajectory([[2, 2],
+                                    [2.03, 2.03],
+                                    [2.06, 2.06],
+                                    [2.09, 2.09]])
+    trajectory_b = make_trajectory([[1, 1],
                                     [1.03, 1.03],
                                     [1.06, 1.06],
                                     [1.09, 1.09]])
-    trajectory_b = make_trajectory([[1.5, 0.5],
-                                    [1.53, 0.53],
-                                    [1.56, 0.56],
-                                    [1.59, 0.59]])
-#    trajectory_b = np.array([[1.5, 0.5],
-#                             [1.53, 0.53],
-#                             [1.56, 0.56],
-#                             [1.59, 0.59]])
-#    trajectory_b = [AgentState((1.5, 0.5)),
-#                    AgentState((1.53, 0.53)),
-#                    AgentState((1.56, 0.56)),
-#                    AgentState((1.59, 0.59))]
+
     d_t = 0.03
     k_o = 0.11
     k_rv = 0.01
     k_rd = 0.25
-    num_grid_x = 7
-    num_grid_y = 7
-    search_range_x = 0.6
-    search_range_y = 0.6
+    num_grid_x = 35
+    num_grid_y = 35
+    search_range_x = 3
+    search_range_y = 3
     k_ra = 0.32  # ra = relative_angle
     k_s = 0.2
     k_ma = 0.01
-    k_mv = 0.05
+    k_mv = 0.00
     k_mw = 0.01
-    subgoals_p = [(4, 3.5)]
-    length_step = 100
+    subgoals_p = [(5, 5)]
+    length_step = 7
+    relative_angle_a = 0
+    relative_angle_b = 180 - relative_angle_a
     n = 0
 #    planner = extend_planner.ExtendPlanner(
 #        num_grid_x, num_grid_y, search_range_x, search_range_y,
 #        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t)
-    planner = self_anticipation_planner.SelfAnticipationPlanner(
+    planner_a = extend_self_anticipation_planner.ExtendSelfAnticipationPlanner(
         num_grid_x, num_grid_y, search_range_x, search_range_y,
-        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t)
+        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t, relative_angle_a)
+    planner_b = extend_self_anticipation_planner.ExtendSelfAnticipationPlanner(
+        num_grid_x, num_grid_y, search_range_x, search_range_y,
+        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t, relative_angle_b)
     human_a = Human(
-            trajectory_a, trajectory_b, subgoals_p, planner)
+            trajectory_a, trajectory_b, subgoals_p, planner_a)
     human_b = Human(
-            trajectory_b, trajectory_a, subgoals_p, planner)
+            trajectory_b, trajectory_a, subgoals_p, planner_b)
     logger = Logger(length_step)
 
     logger.log_leader(human_a.s)
@@ -194,6 +199,7 @@ if __name__ == '__main__':
 
         print("step", n)
         logger.display()
+        logger.print()
 
         n += 1  # インクリメント
 #    logger.display()
