@@ -11,62 +11,13 @@ Created on Wed May 24 16:09:19 2017
 
 @author: yume
 """
-#import extend_planner
+
 import copy
 import matplotlib.pyplot as plt
 import numpy as np
 import extend_self_anticipation_planner
-
-
-class Agent(object):
-    def __init__(
-            self, trajectory_me, trajectory_you, subgoal_p, planner, d_t=0.03):
-        self.trajectory_me = trajectory_me[:-1]
-        self.trajectory_you = trajectory_you[:-1]
-#        self.p = trajectory_me[-1]
-        self.s = trajectory_me[-1]
-        self.subgoals_p = subgoals_p
-        self.d_t = d_t
-        self.planner = planner
-
-    def measure(self, s_me, s_you):
-        self.trajectory_me.append(s_me)
-        self.trajectory_you.append(s_you)
-
-    def estimate(self):
-        pass
-
-    def decide_action(self):
-        raise NotImplementedError(
-                "You have to extend Agentclass if you want to use this module")
-
-    def move(self):
-        self.s.p = self.s.p + self.v
-        self.s.d = self.v
-
-    def __repr__(self):
-        return repr(self.s)
-
-
-class AgentState(object):
-    def __init__(self, p, d=None):  # Noneでdの引数省略可
-        self.p = np.array(p)
-        self.d = np.array(d)
-
-    def __repr__(self):
-        return "state({}, {})".format(self.p, self.d)
-
-
-# Leader
-# plotする範囲を指定、plot数も指定
-class Human(Agent):
-
-    def decide_action(self):
-        subgoal_p = self.subgoals_p[0]
-        next_p = self.planner.decide_action(
-                self.trajectory_me, self.trajectory_you, subgoal_p)
-        current_p = self.s.p
-        self.v = next_p - current_p
+from agents import AgentState
+from agents import Human
 
 
 class Logger(object):

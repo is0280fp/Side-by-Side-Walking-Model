@@ -7,14 +7,14 @@ Created on Thu Jul 20 18:06:45 2017
 
 import numpy as np
 import matplotlib.pyplot as plt
-from main_ver2 import AgentState
+from agents_ver2 import AgentState
 
 
 class ExtendSelfAnticipationPlanner(object):
     def __init__(self, name, num_grid_x=7, num_grid_y=7,
                  search_range_x=0.6, search_range_y=0.6,
                  k_o=0.11, k_rv=0.01, k_rd=0.25, k_ra=0.32, k_s=0.2,
-                 k_ma=0.01, k_mv=0.05, k_mw=0.01 ,d_t=0.03, relative_a=90):
+                 k_ma=0.01, k_mv=0.05, k_mw=0.01 ,d_t=0.03, relative_a=None):
         self.name = name
         self.num_grid_x = num_grid_x
         self.num_grid_y = num_grid_y

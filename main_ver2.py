@@ -10,58 +10,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 # import self_anticipation_planner
 import extend_self_anticipation_planner_ver2
-
-
-class Agent(object):
-    def __init__(
-            self, trajectory_me, trajectory_you, subgoal_p, planner, d_t=0.03):
-        self.trajectory_me = trajectory_me[:-1]
-        self.trajectory_you = trajectory_you[:-1]
-#        self.p = trajectory_me[-1]
-        self.s = trajectory_me[-1]
-        self.subgoals_p = subgoals_p
-        self.d_t = d_t
-        self.planner = planner
-
-    def measure(self, s_me, s_you):
-        self.trajectory_me.append(s_me)
-        self.trajectory_you.append(s_you)
-
-    def estimate(self):
-        pass
-
-    def decide_action(self):
-        raise NotImplementedError(
-                "You have to extend Agentclass if you want to use this module")
-
-    def move(self):
-        self.s.p = self.s.p + self.v
-        dif = self.subgoals_p[0] - self.s.p
-        self.s.d = dif / np.linalg.norm(dif)
-
-    def __repr__(self):
-        return repr(self.s)
-
-
-class AgentState(object):
-    def __init__(self, p, d=None):  # Noneでdの引数省略可
-        self.p = np.array(p)
-        self.d = np.array(d)
-
-    def __repr__(self):
-        return "state({}, {})".format(self.p, self.d)
-
-
-# Leader
-# plotする範囲を指定、plot数も指定
-class Human(Agent):
-
-    def decide_action(self):
-        subgoal_p = self.subgoals_p[0]
-        next_p = self.planner.decide_action(
-                self.trajectory_me, self.trajectory_you, subgoal_p)
-        current_p = self.s.p
-        self.v = next_p - current_p
+from agents_ver2 import AgentState
+from agents_ver2 import Human
 
 
 class Logger(object):
@@ -154,26 +104,30 @@ if __name__ == '__main__':
     num_grid_y = 7
     search_range_x = 0.6
     search_range_y = 0.6
-    k_ra = 0.32  # ra = relative_angle
-    k_s = 0.2
+    k_ra = 0.6  # ra = relative_angle
+    k_s = 0.36
     k_ma = 0.01
     k_mv = 0.05
     k_mw = 0.01
     subgoals_p = [(4, 3.5)]
-    length_step = 7
-    relative_angle_a = 90
+    length_step = 10
+    relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
     n = 0
 
 #    planner = extend_planner.ExtendPlanner(
 #        num_grid_x, num_grid_y, search_range_x, search_range_y,
 #        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t)
-    planner_a = extend_self_anticipation_planner_ver2.ExtendSelfAnticipationPlanner(
-        "a", num_grid_x, num_grid_y, search_range_x, search_range_y,
-        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t, relative_angle_a)
-    planner_b = extend_self_anticipation_planner_ver2.ExtendSelfAnticipationPlanner(
-        "b", num_grid_x, num_grid_y, search_range_x, search_range_y,
-        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t, relative_angle_b)
+    planner_a = \
+        extend_self_anticipation_planner_ver2.ExtendSelfAnticipationPlanner(
+                "a", num_grid_x, num_grid_y, search_range_x, search_range_y,
+                k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw,
+                d_t, relative_angle_a)
+    planner_b = \
+        extend_self_anticipation_planner_ver2.ExtendSelfAnticipationPlanner(
+                "b", num_grid_x, num_grid_y, search_range_x, search_range_y,
+                k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw,
+                d_t, relative_angle_b)
     human_a = Human(
             trajectory_a, trajectory_b, subgoals_p, planner_a)
     human_b = Human(
