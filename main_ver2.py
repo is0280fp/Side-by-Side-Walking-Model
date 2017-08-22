@@ -5,17 +5,11 @@ Created on Fri Jul 14 21:56:53 2017
 @author: yume
 """
 
-# -*- coding: utf-8 -*-
-"""
-Created on Wed May 24 16:09:19 2017
-
-@author: yume
-"""
-#import extend_planner
 import copy
 import matplotlib.pyplot as plt
 import numpy as np
-import extend_self_anticipation_planner
+# import self_anticipation_planner
+import extend_self_anticipation_planner_ver2
 
 
 class Agent(object):
@@ -42,7 +36,8 @@ class Agent(object):
 
     def move(self):
         self.s.p = self.s.p + self.v
-        self.s.d = self.v
+        dif = self.subgoals_p[0] - self.s.p
+        self.s.d = dif / np.linalg.norm(dif)
 
     def __repr__(self):
         return repr(self.s)
@@ -133,14 +128,7 @@ if __name__ == '__main__':
     relative_pos = 2
     l_v_max = 3
     f_v_max = 2
-#    trajectory_a = np.array([[1, 1],
-#                             [1.03, 1.03],
-#                             [1.06, 1.06],
-#                             [1.09, 1.09]])
-#    trajectory_a = [AgentState((1, 1)),
-#                    AgentState((1.03, 1.03)),
-#                    AgentState((1.06, 1.06)),
-#                    AgentState((1.09, 1.09))]
+
     trajectory_a = make_trajectory([[0.91, 0.91],
                                     [0.94, 0.94],
                                     [0.97, 0.97],
@@ -149,14 +137,15 @@ if __name__ == '__main__':
                                     [1.44, 0.44],
                                     [1.47, 0.47],
                                     [1.5, 0.5]])
-#    trajectory_b = np.array([[1.5, 0.5],
-#                             [1.53, 0.53],
-#                             [1.56, 0.56],
-#                             [1.59, 0.59]])
-#    trajectory_b = [AgentState((1.5, 0.5)),
-#                    AgentState((1.53, 0.53)),
-#                    AgentState((1.56, 0.56)),
-#                    AgentState((1.59, 0.59))]
+#    trajectory_a = make_trajectory([[2, 2],
+#                                    [2.03, 2.03],
+#                                    [2.06, 2.06],
+#                                    [2.09, 2.09]])
+#    trajectory_b = make_trajectory([[1, 1],
+#                                    [1.03, 1.03],
+#                                    [1.06, 1.06],
+#                                    [1.09, 1.09]])
+
     d_t = 0.03
     k_o = 0.11
     k_rv = 0.01
@@ -171,17 +160,20 @@ if __name__ == '__main__':
     k_mv = 0.05
     k_mw = 0.01
     subgoals_p = [(4, 3.5)]
-    length_step = 100
+    length_step = 7
+    relative_angle_a = 90
+    relative_angle_b = 180 - relative_angle_a
     n = 0
+
 #    planner = extend_planner.ExtendPlanner(
 #        num_grid_x, num_grid_y, search_range_x, search_range_y,
 #        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t)
-    planner_a = extend_self_anticipation_planner.ExtendSelfAnticipationPlanner(
-        num_grid_x, num_grid_y, search_range_x, search_range_y,
-        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t)
-    planner_b = extend_self_anticipation_planner.ExtendSelfAnticipationPlanner(
-        num_grid_x, num_grid_y, search_range_x, search_range_y,
-        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t)
+    planner_a = extend_self_anticipation_planner_ver2.ExtendSelfAnticipationPlanner(
+        "a", num_grid_x, num_grid_y, search_range_x, search_range_y,
+        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t, relative_angle_a)
+    planner_b = extend_self_anticipation_planner_ver2.ExtendSelfAnticipationPlanner(
+        "b", num_grid_x, num_grid_y, search_range_x, search_range_y,
+        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t, relative_angle_b)
     human_a = Human(
             trajectory_a, trajectory_b, subgoals_p, planner_a)
     human_b = Human(
@@ -210,6 +202,7 @@ if __name__ == '__main__':
         print("step", n)
         logger.display()
         logger.print()
+        print("==================================================================================")
 
         n += 1  # インクリメント
 #    logger.display()

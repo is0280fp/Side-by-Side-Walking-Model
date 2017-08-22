@@ -7,14 +7,15 @@ Created on Thu Jul 20 18:06:45 2017
 
 import numpy as np
 import matplotlib.pyplot as plt
-from agents import AgentState
+from main_ver2 import AgentState
 
 
 class ExtendSelfAnticipationPlanner(object):
-    def __init__(self, num_grid_x=7, num_grid_y=7,
+    def __init__(self, name, num_grid_x=7, num_grid_y=7,
                  search_range_x=0.6, search_range_y=0.6,
                  k_o=0.11, k_rv=0.01, k_rd=0.25, k_ra=0.32, k_s=0.2,
                  k_ma=0.01, k_mv=0.05, k_mw=0.01 ,d_t=0.03, relative_a=90):
+        self.name = name
         self.num_grid_x = num_grid_x
         self.num_grid_y = num_grid_y
         self.search_range_x = search_range_x
@@ -65,6 +66,7 @@ class ExtendSelfAnticipationPlanner(object):
 #        predicted_r_a = relative_angle.argmax()
 #        print("relative_angle", predicted_r_a)
         plt.matshow(utility)
+        plt.title(self.name)
         plt.gca().invert_yaxis()
         plt.colorbar()
         plt.show()
@@ -81,8 +83,11 @@ class ExtendSelfAnticipationPlanner(object):
             d(ndarray):
                 p_t - p.{t-1}
         """
-        next_d = trajectory[-1].p - trajectory[-2].p
-        next_p = trajectory[-1].p + next_d
+        temp = trajectory[-1].p - trajectory[-2].p
+        next_p = trajectory[-1].p + temp
+        temp = trajectory[-1].d - trajectory[-2].d
+        next_d = trajectory[-1].d + temp
+        next_d = next_d / np.linalg.norm(next_d)
         return AgentState(next_p, next_d)
 
     def m_v(self, s, next_s):
