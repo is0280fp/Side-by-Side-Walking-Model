@@ -7,7 +7,7 @@ Created on Thu Jul 20 18:06:45 2017
 
 import numpy as np
 import matplotlib.pyplot as plt
-from main import AgentState
+from agents import AgentState
 
 
 class ExtendSelfAnticipationPlanner(object):
@@ -114,10 +114,13 @@ class ExtendSelfAnticipationPlanner(object):
         return d
 
     def revision_theta(self, theta):
-        if 0 <= theta <= np.pi or - np.pi <= theta <= 0:
-            r_a = theta
-        elif - 2 * np.pi <= theta < - np.pi:
-            r_a = theta + np.pi * 2
+        theta += np.pi
+        theta %= 2 * np.pi
+        if theta < 0:
+            theta += np.pi
+        else:
+            theta -= np.pi
+        r_a = theta
         return r_a
 
     def relative_angle(self, s_me, s_you):
