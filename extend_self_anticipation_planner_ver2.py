@@ -178,7 +178,7 @@ class ExtendSelfAnticipationPlanner(object):
         c_v = self.calculation_control_factors(
                 s_me, next_s_me, optimum_velocity)
         # utilityの計算
-        f_o = self.f(e_o_me, 0, 0, 0)
+        f_o = self.f(e_o_me, 20, 0.4, 0)
         f_rv = self.f(r_v, 0.2, 1.2, 0)
         f_rd = self.f(r_d, 0.25, 2.0, 0.75)
         f_ra = self.f(r_a, 0.08, 3.0, self.relative_a)
@@ -186,7 +186,7 @@ class ExtendSelfAnticipationPlanner(object):
         f_ma = self.f(m_a_me, 0.2, 1.0, 0.0)
         f_mv = self.f(m_v_me, 0.3, 1.6, 1.10)
         f_mw = self.f(m_w_me, 0.7, 4.4, 0.0)
-        f_cv = self.f(c_v, 0, 0, 0)
+        f_cv = self.f(c_v, 0.08, 2, 0)
         utility = (self.k_o * f_o + self.k_s * f_s +
                    self.k_rv * f_rv + self.k_rd * f_rd + self.k_ra * f_ra +
                    self.k_ma * f_ma + self.k_mv * f_mv + self.k_mw * f_mw +
