@@ -10,13 +10,15 @@ import numpy as np
 
 class Agent(object):
     def __init__(self,
-                 trajectory_me, trajectory_you, subgoals_p, optimum_velocity,
+                 trajectory_me, trajectory_you, subgoals_p, obstacles_p,
+                 optimum_velocity,
                  planner, d_t=0.03):
         self.trajectory_me = trajectory_me[:-1]
         self.trajectory_you = trajectory_you[:-1]
 #        self.p = trajectory_me[-1]
         self.s = trajectory_me[-1]
         self.subgoals_p = subgoals_p
+        self.obstacles_p = obstacles_p
         self.optimum_velocity = optimum_velocity
         self.d_t = d_t
         self.planner = planner
@@ -56,9 +58,10 @@ class Human(Agent):
 
     def decide_action(self):
         subgoal_p = self.subgoals_p[0]
+        obstacle_p = self.obstacles_p[0]
         optimum_velocity = self.optimum_velocity
         next_p = self.planner.decide_action(
                 self.trajectory_me, self.trajectory_you,
-                subgoal_p, optimum_velocity)
+                subgoal_p, obstacle_p, optimum_velocity)
         current_p = self.s.p
         self.v = next_p - current_p

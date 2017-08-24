@@ -111,6 +111,7 @@ if __name__ == '__main__':
     k_mw = 0.01
     k_cv = 0
     subgoals_p = [(4, 3.5)]
+    obstacles_p = [(3, 3)]
     optimum_velocity = 0.03
     length_step = 10
     relative_angle_a = 0
@@ -131,9 +132,11 @@ if __name__ == '__main__':
                 k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, k_cv,
                 d_t, relative_angle_b)
     human_a = Human(
-        trajectory_a, trajectory_b, subgoals_p, optimum_velocity, planner_a)
+        trajectory_a, trajectory_b, subgoals_p,
+        obstacles_p, optimum_velocity, planner_a)
     human_b = Human(
-        trajectory_b, trajectory_a, subgoals_p, optimum_velocity, planner_b)
+        trajectory_b, trajectory_a, subgoals_p,
+        obstacles_p, optimum_velocity, planner_b)
     logger = Logger(length_step)
 
     logger.log_leader(human_a.s)
