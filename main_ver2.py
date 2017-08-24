@@ -109,7 +109,9 @@ if __name__ == '__main__':
     k_ma = 0.01
     k_mv = 0.05
     k_mw = 0.01
+    k_cv = 0
     subgoals_p = [(4, 3.5)]
+    optimum_velocity = 0.03
     length_step = 10
     relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
@@ -121,17 +123,17 @@ if __name__ == '__main__':
     planner_a = \
         extend_self_anticipation_planner_ver2.ExtendSelfAnticipationPlanner(
                 "a", num_grid_x, num_grid_y, search_range_x, search_range_y,
-                k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw,
+                k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, k_cv,
                 d_t, relative_angle_a)
     planner_b = \
         extend_self_anticipation_planner_ver2.ExtendSelfAnticipationPlanner(
                 "b", num_grid_x, num_grid_y, search_range_x, search_range_y,
-                k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw,
+                k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, k_cv,
                 d_t, relative_angle_b)
     human_a = Human(
-            trajectory_a, trajectory_b, subgoals_p, planner_a)
+        trajectory_a, trajectory_b, subgoals_p, optimum_velocity, planner_a)
     human_b = Human(
-            trajectory_b, trajectory_a, subgoals_p, planner_b)
+        trajectory_b, trajectory_a, subgoals_p, optimum_velocity, planner_b)
     logger = Logger(length_step)
 
     logger.log_leader(human_a.s)
