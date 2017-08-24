@@ -15,10 +15,12 @@ from agents_ver2 import Human
 
 
 class Logger(object):
-    def __init__(self, length_step):
+    def __init__(self, length_step, subgoals_p, obstacles_p):
         self.l_s = []  # 現在位置を格納するリスト
         self.f_s = []  # 現在位置を格納するリスト
         self.length_step = length_step
+        self.subgoals_p = np.array(subgoals_p)
+        self.obstacles_p = np.array(obstacles_p)
 
     def log_leader(self, s):
         self.l_s.append(copy.copy(s))
@@ -31,6 +33,10 @@ class Logger(object):
         f_p = np.array([s.p for s in self.f_s])
         plt.plot(*l_p.T, "-*", label="a")
         plt.plot(*f_p.T, "-o", label="b")
+        plt.plot(self.subgoals_p.T[0], self.subgoals_p.T[1], "x",
+                 label="subgoal")
+        plt.plot(self.obstacles_p.T[0], self.obstacles_p.T[1], "^",
+                 label="obstacle")
         plt.xlim(0, 5)  # 表の軸を0~20に固定
         plt.ylim(0, 5)  # 表の軸を0~20に固定
         plt.grid()
@@ -109,9 +115,9 @@ if __name__ == '__main__':
     k_ma = 0.01
     k_mv = 0.05
     k_mw = 0.01
-    k_cv = 0
-    subgoals_p = [(4, 3.5)]
-    obstacles_p = [(3, 3)]
+    k_cv = 0.1
+    subgoals_p = [(4, 3.5), (5, 5)]
+    obstacles_p = [(3, 2), (4, 4)]
     optimum_velocity = 0.03
     length_step = 10
     relative_angle_a = 0
@@ -137,7 +143,7 @@ if __name__ == '__main__':
     human_b = Human(
         trajectory_b, trajectory_a, subgoals_p,
         obstacles_p, optimum_velocity, planner_b)
-    logger = Logger(length_step)
+    logger = Logger(length_step, subgoals_p, obstacles_p)
 
     logger.log_leader(human_a.s)
     logger.log_follower(human_b.s)
