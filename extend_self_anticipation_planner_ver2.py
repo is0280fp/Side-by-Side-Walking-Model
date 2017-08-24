@@ -14,7 +14,8 @@ class ExtendSelfAnticipationPlanner(object):
     def __init__(self, name, num_grid_x=7, num_grid_y=7,
                  search_range_x=0.6, search_range_y=0.6,
                  k_o=0.11, k_rv=0.01, k_rd=0.25, k_ra=0.32, k_s=0.2,
-                 k_ma=0.01, k_mv=0.05, k_mw=0.01 ,d_t=0.03, relative_a=None):
+                 k_ma=0.01, k_mv=0.05, k_mw=0.01, k_cv=0,
+                 d_t=0.03, relative_a=None):
         self.name = name
         self.num_grid_x = num_grid_x
         self.num_grid_y = num_grid_y
@@ -28,10 +29,12 @@ class ExtendSelfAnticipationPlanner(object):
         self.k_ma = k_ma
         self.k_mv = k_mv
         self.k_mw = k_mw
+        self.k_cv = k_cv
         self.d_t = d_t
         self.relative_a = np.deg2rad(relative_a)
 
-    def decide_action(self, trajectory_me, trajectory_you, subgoal_p):
+    def decide_action(self, trajectory_me, trajectory_you,
+                      subgoal_p, optimum_velocity):
         utility = []
 
         s_me = trajectory_me[-1]  # 真の位置
@@ -55,7 +58,8 @@ class ExtendSelfAnticipationPlanner(object):
             next_d_me = next_p_me - s_me.p
             next_s_me = AgentState(next_p_me, next_d_me)
             u = self.calculation_utility(
-                    prev_s_me, s_me, next_s_me, next_s_you, subgoal_p)
+                    prev_s_me, s_me, next_s_me, next_s_you, subgoal_p,
+                    optimum_velocity)
             utility.append(u)
 #            relative_angle.append(r_a)
 
@@ -158,13 +162,16 @@ class ExtendSelfAnticipationPlanner(object):
         return grid_points
 
     def calculation_utility(
-            self, prev_s_me, s_me, next_s_me, next_s_you, subgoal_p):
+            self, prev_s_me, s_me, next_s_me, next_s_you,
+            subgoal_p, optimum_velocity):
         m_v_me, m_w_me, m_a_me = \
                 self.calculation_motion_factors(prev_s_me, s_me, next_s_me)
         r_d, r_a, r_v = self.calculation_relative_factors(
                 next_s_me, next_s_you)
         e_s_me = self.calculation_environmental_factors(
                 subgoal_p, s_me, next_s_me)
+        c_v = self.calculation_control_factors(
+                s_me, next_s_me, optimum_velocity)
         # utilityの計算
         f_o = 0
         f_rv = self.f(r_v, 0.2, 1.2, 0)
@@ -174,9 +181,11 @@ class ExtendSelfAnticipationPlanner(object):
         f_ma = self.f(m_a_me, 0.2, 1.0, 0.0)
         f_mv = self.f(m_v_me, 0.3, 1.6, 1.10)
         f_mw = self.f(m_w_me, 0.7, 4.4, 0.0)
+        f_cv = self.f(c_v, 0, 0, 0)
         utility = (self.k_o * f_o + self.k_s * f_s +
                    self.k_rv * f_rv + self.k_rd * f_rd + self.k_ra * f_ra +
-                   self.k_ma * f_ma + self.k_mv * f_mv + self.k_mw * f_mw)
+                   self.k_ma * f_ma + self.k_mv * f_mv + self.k_mw * f_mw +
+                   self.k_cv * f_cv)
         return utility
 
     def calculation_motion_factors(self, prev_s, s, next_s):
@@ -209,6 +218,11 @@ class ExtendSelfAnticipationPlanner(object):
             self.angb(next_p, p)
         return e_s
 
+    def calculation_control_factors(self, s, next_s, optimum_velocity):
+        motion_v = self.m_v(s, next_s)
+        difference = optimum_velocity - motion_v  # スカラー - スカラー
+        return difference  # ベクトル
+
 
 if __name__ == '__main__':
     trajectory_me = np.array([[1, 1],
@@ -232,9 +246,10 @@ if __name__ == '__main__':
     k_ma = 0.01
     k_mv = 0.05
     k_mw = 0.01
+    k_cv = 0
     subgoals_p = (4, 4)
     planner = ExtendSelfAnticipationPlanner(
             num_grid_x, num_grid_y, search_range_x,
             search_range_y, k_o, k_rv, k_rd,
-            k_ra, k_s, k_ma, k_mv, k_mw, d_t)
+            k_ra, k_s, k_ma, k_mv, k_mw, k_cv, d_t)
     print(planner.decide_action(trajectory_me, trajectory_you, subgoals_p))
