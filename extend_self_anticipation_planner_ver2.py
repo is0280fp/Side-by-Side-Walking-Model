@@ -155,6 +155,10 @@ class ExtendSelfAnticipationPlanner(object):
         f_x = 1 / (1+(abs((x-c) / a)**(2*b))) - 1
         return f_x
 
+    def f_o(self, x, a, b, c):
+        f_o = - np.abs((a / x) ** (2*b))
+        return f_o
+
     def making_grid(
             self, num_grid_x, num_grid_y, search_range_x, search_range_y):
         # trajectoryの基の7*7grid作る(中心を(0,0)とする)
@@ -178,7 +182,7 @@ class ExtendSelfAnticipationPlanner(object):
         c_v = self.calculation_control_factors(
                 s_me, next_s_me, optimum_velocity)
         # utilityの計算
-        f_o = self.f(e_o_me, 20, 0.4, 0)
+        f_o = self.f_o(e_o_me, 20, 0.4, 0)
         f_rv = self.f(r_v, 0.2, 1.2, 0)
         f_rd = self.f(r_d, 0.25, 2.0, 0.75)
         f_ra = self.f(r_a, 0.08, 3.0, self.relative_a)
