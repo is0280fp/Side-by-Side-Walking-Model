@@ -9,7 +9,7 @@ import copy
 import matplotlib.pyplot as plt
 import numpy as np
 # import self_anticipation_planner
-import extend_self_anticipation_planner_ver2
+import partner_and_self_anticipation_planner
 from agents_ver2 import AgentState
 from agents_ver2 import Human
 
@@ -103,21 +103,21 @@ if __name__ == '__main__':
 #                                    [1.09, 1.09]])
 
     d_t = 0.03
-    k_o = 0.05
-    k_rv = 0.01
-    k_rd = 0.25
     num_grid_x = 7
     num_grid_y = 7
     search_range_x = 0.6
     search_range_y = 0.6
-    k_ra = 0.6  # ra = relative_angle
-    k_s = 0.36
+    k_o = 0.11
+    k_rv = 0.01
+    k_rd = 0.25
+    k_ra = 0.32  # ra = relative_angle
+    k_s = 0.20
     k_ma = 0.01
     k_mv = 0.05
     k_mw = 0.01
-    k_cv = 0.1
-    subgoals_p = [(4, 3.5), (5, 5)]
-    obstacles_p = [(3, 2), (4, 4)]
+    k_cv = 0  # 実験には使わない
+    subgoals_p = [(4, 3.5)]
+    obstacles_p = [(3, 2)]
     optimum_velocity = 0.03
     length_step = 10
     relative_angle_a = 0
@@ -127,16 +127,18 @@ if __name__ == '__main__':
 #    planner = extend_planner.ExtendPlanner(
 #        num_grid_x, num_grid_y, search_range_x, search_range_y,
 #        k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t)
+#    aさんはwalking_modelに基づいて，経路計画する
     planner_a = \
-        extend_self_anticipation_planner_ver2.ExtendSelfAnticipationPlanner(
+        partner_and_self_anticipation_planner.PartnerSelfAnticipationPlanner(
                 "a", num_grid_x, num_grid_y, search_range_x, search_range_y,
-                k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, k_cv,
-                d_t, relative_angle_a)
+                k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t,
+                relative_angle_a)
+#   bさんはutilityに基づいて，経路計画する
     planner_b = \
-        extend_self_anticipation_planner_ver2.ExtendSelfAnticipationPlanner(
+        partner_and_self_anticipation_planner.PartnerSelfAnticipationPlanner(
                 "b", num_grid_x, num_grid_y, search_range_x, search_range_y,
-                k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, k_cv,
-                d_t, relative_angle_b)
+                k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, d_t,
+                relative_angle_b)
     human_a = Human(
         trajectory_a, trajectory_b, subgoals_p,
         obstacles_p, optimum_velocity, planner_a)
