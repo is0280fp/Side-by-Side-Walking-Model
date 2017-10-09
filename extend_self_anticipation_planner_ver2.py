@@ -184,7 +184,7 @@ class ExtendSelfAnticipationPlanner(object):
         # utilityの計算
         f_o = self.f_o(e_o_me, 20, 0.4, 0)
         f_rv = self.f(r_v, 0.2, 1.2, 0)
-        f_rd = self.f(r_d, 0.25, 2.0, 0.75)
+        f_rd = self.f(r_d, 0.25, 2.0, 1.5)
         f_ra = self.f(r_a, 0.08, 3.0, self.relative_a)
         f_s = self.f(e_s_me, 0.45, 1.00, 0.0)
         f_ma = self.f(m_a_me, 0.2, 1.0, 0.0)

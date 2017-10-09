@@ -8,14 +8,15 @@ Created on Thu Jul 20 18:06:45 2017
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools
-from agents_ver2 import AgentState
+from agents_ver3 import AgentState
 
 
 class PartnerSelfAnticipationPlanner(object):
     def __init__(self, name, num_grid_x=7, num_grid_y=7,
                  search_range_x=0.6, search_range_y=0.6,
                  k_o=0.11, k_rv=0.01, k_rd=0.25, k_ra=0.32, k_s=0.2,
-                 k_ma=0.01, k_mv=0.05, k_mw=0.01, d_t=0.03, relative_a=None):
+                 k_ma=0.01, k_mv=0.05, k_mw=0.01, k_pt=0,
+                 d_t=0.03, relative_a=None):
         self.name = name
         self.num_grid_x = num_grid_x
         self.num_grid_y = num_grid_y
@@ -29,6 +30,7 @@ class PartnerSelfAnticipationPlanner(object):
         self.k_ma = k_ma
         self.k_mv = k_mv
         self.k_mw = k_mw
+        self.k_pt = k_pt
         self.d_t = d_t
         self.relative_a = np.deg2rad(relative_a)
 
@@ -85,7 +87,7 @@ class PartnerSelfAnticipationPlanner(object):
             self.num_grid_y, self.num_grid_x).transpose(
                 0, 2, 1, 3).reshape(self.num_grid_y**2, self.num_grid_x**2)
 
-        predicted_p_me, predicted_p_you = each_other_p[utility.argmax()]
+        predicted_p_you, predicted_p_me = each_other_p[utility.argmax()]
         plt.matshow(utility_map[21:28, 21:28])
         plt.gca().invert_yaxis()
         plt.colorbar()
@@ -200,10 +202,12 @@ class PartnerSelfAnticipationPlanner(object):
                 subgoal_p, obstacle_p, s_me, next_s_me)
         e_s_you, e_o_you = self.calculation_environmental_factors(
                 subgoal_p, obstacle_p, s_you, next_s_you)
+#        pt_me = self.calculation_new_factors()
+        pt_me = 0
         # utilityの計算
         f_o = self.f_o(e_o_me, 20, 0.4, 0)
         f_rv = self.f(r_v, 0.2, 1.2, 0)
-        f_rd = self.f(r_d, 0.25, 2.0, 1.5)
+        f_rd = self.f(r_d, 0.25, 2.0, 0.75)
         f_ra = self.f(r_a, 0.08, 3.0, self.relative_a)
         f_s_me = self.f(e_s_me, 0.45, 1.00, 0.0)
         f_ma_me = self.f(m_a_me, 0.2, 1.0, 0.0)
@@ -213,15 +217,19 @@ class PartnerSelfAnticipationPlanner(object):
         f_ma_you = self.f(m_a_you, 0.2, 1.0, 0.0)
         f_mv_you = self.f(m_v_you, 0.3, 1.6, 1.10)
         f_mw_you = self.f(m_w_you, 0.7, 4.4, 0.0)
+        f_pt_me = self.f(pt_me)
         utility_me = (self.k_o * f_o + self.k_s * f_s_me + self.k_rv * f_rv + \
                       self.k_rd * f_rd + self.k_ra * f_ra + \
                       self.k_ma * f_ma_me + self.k_mv * f_mv_me + \
-                      self.k_mw * f_mw_me)
+                      self.k_mw * f_mw_me + self.k_pt * f_pt_me)
         utility_you = (self.k_o * f_o + self.k_s * f_s_you + \
                        self.k_rv * f_rv + self.k_rd * f_rd + \
             self.k_ra * f_ra + self.k_ma * f_ma_you + self.k_mv * f_mv_you + \
             self.k_mw * f_mw_you)
         return utility_me, utility_you
+
+    def calculation_new_factors(self):
+        pass
 
     def calculation_motion_factors(self, prev_s, s, next_s):
         motion_v = self.m_v(s, next_s)
@@ -275,11 +283,12 @@ if __name__ == '__main__':
     k_ma = 0.01
     k_mv = 0.05
     k_mw = 0.01
+    k_pt = 0
     subgoals_p = (4, 4)
     obstacles_p = (3, 3)
     planner = PartnerSelfAnticipationPlanner(
             num_grid_x, num_grid_y, search_range_x,
             search_range_y, k_o, k_rv, k_rd,
-            k_ra, k_s, k_ma, k_mv, k_mw, d_t)
+            k_ra, k_s, k_ma, k_mv, k_mw, k_pt, d_t)
     print(planner.decide_action(
             trajectory_me, trajectory_you, subgoals_p, obstacles_p))
