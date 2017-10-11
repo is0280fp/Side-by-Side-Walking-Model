@@ -9,6 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import itertools
 from agents_ver3 import AgentState
+from utility_visualization import utility_changing_graph
+from utility_visualization import utility_color_map
 
 
 class PartnerSelfAnticipationPlanner(object):
@@ -81,17 +83,10 @@ class PartnerSelfAnticipationPlanner(object):
             utility_you.append(u_you)
             utility.append(u_me + u_you)
 
-        utility = np.array(utility_you)
-        utility_map = utility.reshape(
-            self.num_grid_y, self.num_grid_x,
-            self.num_grid_y, self.num_grid_x).transpose(
-                0, 2, 1, 3).reshape(self.num_grid_y**2, self.num_grid_x**2)
+        utility = np.array(utility)
+        utility_color_map(utility, self.num_grid_x, self.num_grid_y, "utility")
 
         predicted_p_you, predicted_p_me = each_other_p[utility.argmax()]
-        plt.matshow(utility_map[21:28, 21:28])
-        plt.gca().invert_yaxis()
-        plt.colorbar()
-        plt.show()
         return predicted_p_me
 
     def linear_extrapolation(self, trajectory):
