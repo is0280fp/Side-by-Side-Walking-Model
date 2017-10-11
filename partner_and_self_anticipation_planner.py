@@ -70,7 +70,7 @@ class PartnerSelfAnticipationPlanner(object):
 
     #    for next_p_me in grid_points_me:
         each_other_p = list(itertools.product(grid_points_you, grid_points_me))
-        for next_p_me, next_p_you in each_other_p:
+        for next_p_you, next_p_me in each_other_p:
             next_d_me = next_p_me - s_me.p
             next_s_me = AgentState(next_p_me, next_d_me)
             next_d_you = next_p_you - s_you.p
