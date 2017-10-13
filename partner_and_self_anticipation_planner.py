@@ -7,14 +7,17 @@ Created on Thu Jul 20 18:06:45 2017
 
 import numpy as np
 import matplotlib.pyplot as plt
-from agents_ver2 import AgentState
+import itertools
+from agents_ver3 import AgentState
+from utility_visualization import utility_changing_graph
+from utility_visualization import utility_color_map
 
 
-class ExtendSelfAnticipationPlanner(object):
+class PartnerSelfAnticipationPlanner(object):
     def __init__(self, name, num_grid_x=7, num_grid_y=7,
                  search_range_x=0.6, search_range_y=0.6,
                  k_o=0.11, k_rv=0.01, k_rd=0.25, k_ra=0.32, k_s=0.2,
-                 k_ma=0.01, k_mv=0.05, k_mw=0.01, k_cv=0,
+                 k_ma=0.01, k_mv=0.05, k_mw=0.01, k_pt=0,
                  d_t=0.03, relative_a=None):
         self.name = name
         self.num_grid_x = num_grid_x
@@ -29,57 +32,68 @@ class ExtendSelfAnticipationPlanner(object):
         self.k_ma = k_ma
         self.k_mv = k_mv
         self.k_mw = k_mw
-        self.k_cv = k_cv
+        self.k_pt = k_pt
         self.d_t = d_t
         self.relative_a = np.deg2rad(relative_a)
 
     def decide_action(self, trajectory_me, trajectory_you,
-                      subgoal_p, obstacle_p, optimum_velocity):
+                      obstacle_p, subgoal_p):
+        utility_me = []
+        utility_you = []
         utility = []
 
         s_me = trajectory_me[-1]  # 真の位置
-#        s_you = trajectory_you[-1]
+        s_you = trajectory_you[-1]
         prev_s_me = trajectory_me[-2]  # 真の位置
-#        prev_s_you = trajectory_you[-2]
-        # 予測した次の位置と変化量
-        next_s_me = self.linear_extrapolation(trajectory_me)
-        next_s_you = self.linear_extrapolation(trajectory_you)
+        prev_s_you = trajectory_you[-2]
 
-        # 予測位置を中心としたグリッドを作成
-        grid_points = self.making_grid(
+        grid_points_me = self.making_grid(
+                self.num_grid_x, self.num_grid_y,
+                self.search_range_x, self.search_range_y)
+        grid_points_you = self.making_grid(
                 self.num_grid_x, self.num_grid_y,
                 self.search_range_x, self.search_range_y)
 
-        grid_points = grid_points + next_s_me.p
-#        m_v_you, m_w_you, m_a_you = \
-#            self.calculation_motion_factors(prev_s_you, s_you, next_s_you)
+        # 予測位置を中心としたグリッドを作成
+        next_s_me = self.linear_extrapolation(trajectory_me)
+        grid_points_me = self.making_grid(
+                self.num_grid_x, self.num_grid_y,
+                self.search_range_x, self.search_range_y)
+        # 予測位置を中心としたグリッドを作成
+        next_s_you = self.linear_extrapolation(trajectory_you)
+        grid_points_you = self.making_grid(
+                self.num_grid_x, self.num_grid_y,
+                self.search_range_x, self.search_range_y)
 
-        for next_p_me in grid_points:
+        grid_points_me = grid_points_me + next_s_me.p
+        grid_points_you = grid_points_you + next_s_you.p
+
+    #    for next_p_me in grid_points_me:
+        each_other_p = list(itertools.product(grid_points_you, grid_points_me))
+        for next_p_you, next_p_me in each_other_p:
             next_d_me = next_p_me - s_me.p
             next_s_me = AgentState(next_p_me, next_d_me)
-            u = self.calculation_utility(
-                    prev_s_me, s_me, next_s_me, next_s_you,
-                    subgoal_p, obstacle_p, optimum_velocity)
-            utility.append(u)
-#            relative_angle.append(r_a)
+            next_d_you = next_p_you - s_you.p
+            next_s_you = AgentState(next_p_you, next_d_you)
+            u_me, u_you = \
+                self.calculation_utility(
+                    prev_s_me, s_me, next_s_me,
+                    prev_s_you, s_you, next_s_you, subgoal_p, obstacle_p)
+            utility_me.append(u_me)
+            utility_you.append(u_you)
+            utility.append(u_me + u_you)
 
-        utility = np.array(utility).reshape(self.num_grid_y, self.num_grid_x)
-#        relative_angle = np.array(relative_angle).reshape(
-#               self.num_grid_y, self.num_grid_x)
-        predicted_p_me = grid_points[utility.argmax()]
-#        predicted_r_a = relative_angle.argmax()
-#        print("relative_angle", predicted_r_a)
-        plt.matshow(utility)
-        plt.title(self.name)
-        plt.gca().invert_yaxis()
-        plt.colorbar()
-        plt.show()
+        utility = np.array(utility)
+        utility_color_map(utility, self.num_grid_x, self.num_grid_y, "utility")
+
+        predicted_p_you, predicted_p_me = each_other_p[utility.argmax()]
         return predicted_p_me
 
     def linear_extrapolation(self, trajectory):
         """位置の履歴から次の時刻の位置を等速直線運動で予測する
+
         Args　:
-            trajectory:
+            trajectory:ｎｕｍ＿grid＿x
                 位置の記録
         Returns:
             next_p(ndarray):
@@ -159,8 +173,8 @@ class ExtendSelfAnticipationPlanner(object):
         f_o = - np.abs((a / x) ** (2*b))
         return f_o
 
-    def making_grid(
-            self, num_grid_x, num_grid_y, search_range_x, search_range_y):
+    def making_grid(self,
+                    num_grid_x, num_grid_y, search_range_x, search_range_y):
         # trajectoryの基の7*7grid作る(中心を(0,0)とする)
         x = np.linspace(-search_range_x, search_range_x, num_grid_x)
         y = np.linspace(-search_range_y, search_range_y, num_grid_y)
@@ -171,49 +185,61 @@ class ExtendSelfAnticipationPlanner(object):
         return grid_points
 
     def calculation_utility(
-            self, prev_s_me, s_me, next_s_me, next_s_you,
-            subgoal_p, obstacle_p, optimum_velocity):
+            self, prev_s_me, s_me, next_s_me,
+            prev_s_you, s_you, next_s_you, obstacle_p, subgoal_p):
         m_v_me, m_w_me, m_a_me = \
-                self.calculation_motion_factors(prev_s_me, s_me, next_s_me)
+            self.calculation_motion_factors(prev_s_me, s_me, next_s_me)
+        m_v_you, m_w_you, m_a_you = \
+            self.calculation_motion_factors(prev_s_you, s_you, next_s_you)
         r_d, r_a, r_v = self.calculation_relative_factors(
                 next_s_me, next_s_you)
         e_s_me, e_o_me = self.calculation_environmental_factors(
                 subgoal_p, obstacle_p, s_me, next_s_me)
-        c_v = self.calculation_control_factors(
-                s_me, next_s_me, optimum_velocity)
+        e_s_you, e_o_you = self.calculation_environmental_factors(
+                subgoal_p, obstacle_p, s_you, next_s_you)
+#        pt_me = self.calculation_new_factors()
+        pt_me = 0
         # utilityの計算
         f_o = self.f_o(e_o_me, 20, 0.4, 0)
         f_rv = self.f(r_v, 0.2, 1.2, 0)
-        f_rd = self.f(r_d, 0.25, 2.0, 1.5)
+        f_rd = self.f(r_d, 0.25, 2.0, 0.75)
         f_ra = self.f(r_a, 0.08, 3.0, self.relative_a)
-        f_s = self.f(e_s_me, 0.45, 1.00, 0.0)
-        f_ma = self.f(m_a_me, 0.2, 1.0, 0.0)
-        f_mv = self.f(m_v_me, 0.3, 1.6, 1.10)
-        f_mw = self.f(m_w_me, 0.7, 4.4, 0.0)
-        f_cv = self.f(c_v, 0.08, 2, 0)
-        utility = (self.k_o * f_o + self.k_s * f_s +
-                   self.k_rv * f_rv + self.k_rd * f_rd + self.k_ra * f_ra +
-                   self.k_ma * f_ma + self.k_mv * f_mv + self.k_mw * f_mw +
-                   self.k_cv * f_cv)
-        return utility
+        f_s_me = self.f(e_s_me, 0.45, 1.00, 0.0)
+        f_ma_me = self.f(m_a_me, 0.2, 1.0, 0.0)
+        f_mv_me = self.f(m_v_me, 0.3, 1.6, 1.10)
+        f_mw_me = self.f(m_w_me, 0.7, 4.4, 0.0)
+        f_s_you = self.f(e_s_you, 0.45, 1.00, 0.0)
+        f_ma_you = self.f(m_a_you, 0.2, 1.0, 0.0)
+        f_mv_you = self.f(m_v_you, 0.3, 1.6, 1.10)
+        f_mw_you = self.f(m_w_you, 0.7, 4.4, 0.0)
+        f_pt_me = self.f(pt_me)
+        utility_me = (self.k_o * f_o + self.k_s * f_s_me + self.k_rv * f_rv + \
+                      self.k_rd * f_rd + self.k_ra * f_ra + \
+                      self.k_ma * f_ma_me + self.k_mv * f_mv_me + \
+                      self.k_mw * f_mw_me + self.k_pt * f_pt_me)
+        utility_you = (self.k_o * f_o + self.k_s * f_s_you + \
+                       self.k_rv * f_rv + self.k_rd * f_rd + \
+            self.k_ra * f_ra + self.k_ma * f_ma_you + self.k_mv * f_mv_you + \
+            self.k_mw * f_mw_you)
+        return utility_me, utility_you
+
+    def calculation_new_factors(self):
+        pass
 
     def calculation_motion_factors(self, prev_s, s, next_s):
         motion_v = self.m_v(s, next_s)
         # 現在の位置と予測した位置に基づいた現在の速さ
-#        ang = np.arctan(d[1]/d[0])  # 現在のベクトル
-#        next_ang = np.arctan(
-#                next_d[1]/next_d[0])  # 予測した変化量に基づく次回のベクトル
         motion_w = self.m_w(prev_s, s, next_s)  # 現在と予測による角速度
         prev_m_v = self.m_v(prev_s, s)
         motion_a = self.m_a(prev_m_v, motion_v)
         return motion_v, motion_w, motion_a
 
     def calculation_relative_factors(self, s_me, s_you):
+        # (relative factor)
         p_you = s_you.p
         p_me = s_me.p
         d_you = s_you.d
         d_me = s_me.d
-        # (relative factor)
         r_d = np.linalg.norm(p_you - p_me)  # socialrelativedistance
         r_a = self.relative_angle(s_me, s_you)
         # relative_angle
@@ -228,11 +254,6 @@ class ExtendSelfAnticipationPlanner(object):
             self.angb(next_p, p)
         e_o = self.distance_to_obstacle(next_s, obstacle_p)
         return e_s, e_o
-
-    def calculation_control_factors(self, s, next_s, optimum_velocity):
-        motion_v = self.m_v(s, next_s)
-        difference = optimum_velocity - motion_v  # スカラー - スカラー
-        return difference  # ベクトル
 
 
 if __name__ == '__main__':
@@ -257,12 +278,12 @@ if __name__ == '__main__':
     k_ma = 0.01
     k_mv = 0.05
     k_mw = 0.01
-    k_cv = 0
+    k_pt = 0
     subgoals_p = (4, 4)
     obstacles_p = (3, 3)
-    planner = ExtendSelfAnticipationPlanner(
+    planner = PartnerSelfAnticipationPlanner(
             num_grid_x, num_grid_y, search_range_x,
             search_range_y, k_o, k_rv, k_rd,
-            k_ra, k_s, k_ma, k_mv, k_mw, k_cv, d_t)
-    print(planner.decide_action(trajectory_me, trajectory_you,
-                                subgoals_p, obstacles_p))
+            k_ra, k_s, k_ma, k_mv, k_mw, k_pt, d_t)
+    print(planner.decide_action(
+            trajectory_me, trajectory_you, subgoals_p, obstacles_p))

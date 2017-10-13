@@ -59,9 +59,8 @@ class Human(Agent):
     def decide_action(self):
         subgoal_p = self.subgoals_p[0]
         obstacle_p = self.obstacles_p[0]
-        optimum_velocity = self.optimum_velocity
         next_p = self.planner.decide_action(
                 self.trajectory_me, self.trajectory_you,
-                subgoal_p, obstacle_p, optimum_velocity)
+                subgoal_p, obstacle_p)
         current_p = self.s.p
         self.v = next_p - current_p
