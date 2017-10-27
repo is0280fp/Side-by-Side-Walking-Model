@@ -21,7 +21,7 @@ from utility import Acceleration
 
 
 class PartnerSelfAnticipationPlanner(object):
-    def __init__(self, name, num_grid_x=7, num_grid_y=7,
+    def __init__(self, name=None, num_grid_x=7, num_grid_y=7,
                  search_range_x=0.6, search_range_y=0.6,
                  k_o=0.11, k_rv=0.01, k_rd=0.25, k_ra=0.32, k_s=0.2,
                  k_ma=0.01, k_mv=0.05, k_mw=0.01, k_pt=0,
