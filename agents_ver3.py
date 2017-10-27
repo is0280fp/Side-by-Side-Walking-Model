@@ -9,7 +9,7 @@ import numpy as np
 #  from walking_model import walking_model
 
 
-class Agent(object):
+class AgentRobot(object):
     def __init__(self, subgoals, initial_state,
                  planner, d_t=0.1, trajectory_me=None, trajectory_you=None):
         if trajectory_me is not None:
@@ -51,7 +51,7 @@ class Agent(object):
         return repr(self.s)
 
 
-class Agent_human(object):
+class AgentHuman(object):
     def __init__(
             self, subgoals, initial_state, d_t=0.03, trajectory_me=None, trajectory_you=None):
         if trajectory_me is not None:
@@ -98,7 +98,7 @@ class AgentState(object):
 
 # Leader
 # plotする範囲を指定、plot数も指定
-class Robot(Agent):
+class Robot(AgentRobot):
     def closest_obstacle(self):
         closest_obstacle = self.environment
         return closest_obstacle
@@ -115,7 +115,7 @@ class Robot(Agent):
 
 # follower
 # plotする範囲を指定、plot数も指定
-class Human(Agent_human):
+class Human(AgentHuman):
     def __init__(
             self, subgoals, initial_state, d_t=0.03,
             trajectory_me=None, trajectory_you=None):
