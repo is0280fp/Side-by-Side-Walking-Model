@@ -2,11 +2,9 @@ import numpy as np
 
 
 class DistanceToObstacle(object):
-    def __init__(self, prev_s, s, next_s, obstacle):
-        self.prev_s = prev_s
-        self.s = s
-        self.next_s = next_s
-        self.obstacle = obstacle
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
 
     def distance_to_obstacle(self):
         p = self.s.p
@@ -17,22 +15,23 @@ class DistanceToObstacle(object):
         e_o = self.distance_to_obstacle()
         return e_o
 
-    def f_obstacle(self, x, a, b, c):
-        f_o = - np.abs((a / x) ** (2*b))
+    def f_obstacle(self, x):
+        f_o = - np.abs((self.a / x) ** (2*self.b))
         return f_o
 
-    def calculation_f_o_utility(self):
+    def calculation_f_o_utility(self, s, obstacle):
+        self.s = s
+        self.obstacle = obstacle
         e_o = self.calculation_environmental_factors()
-        f_o = self.f_obstacle(e_o, 20, 0.4, 0)
+        f_o = self.f_obstacle(e_o)
         return f_o
 
 
 class MovingTowardSubgoals(object):
-    def __init__(self, prev_s, s, next_s, subgoal):
-        self.prev_s = prev_s
-        self.s = s
-        self.next_s = next_s
-        self.subgoal = subgoal
+    def __init__(self, a, b, c):
+        self.a = a
+        self.b = b
+        self.c = c
 
     def angb(self, p1, p2):
         # p2からみたp1の相対位置ベクトルの絶対角度
@@ -46,29 +45,27 @@ class MovingTowardSubgoals(object):
         e_s = self.angb(subgoal_p, p) - self.angb(next_p, p)
         return e_s
 
-    def f(self, x, a=0.25, b=2.00, c=0.75):
+    def f(self, x):
         """
         eq. (9)
         """
-        f_x = 1 / (1+(abs((x-c) / a)**(2*b))) - 1
+        f_x = 1 / (1+(abs((x-self.c) / self.a)**(2*self.b))) - 1
         return f_x
 
-    def calculation_f_s_utility(self):
+    def calculation_f_s_utility(self, s, next_s, subgoal):
+        self.s = s
+        self.next_s = next_s
+        self.subgoal = subgoal
         e_s = self.calculation_environmental_factors()
-        f_s = self.f(e_s, 0.45, 1.00, 0.0)
+        f_s = self.f(e_s)
         return f_s
 
 
 class RelativeVelocity(object):
-    def __init__(self, prev_s_me, s_me, next_s_me,
-                 prev_s_you, s_you, next_s_you, d_t):
-        self.prev_s_me = prev_s_me
-        self.s_me = s_me
-        self.next_s_me = next_s_me
-        self.prev_s_you = prev_s_you
-        self.s_you = s_you
-        self.next_s_you = next_s_you
-        self.d_t = d_t
+    def __init__(self, a, b, c):
+        self.a = a
+        self.b = b
+        self.c = c
 
     def calculation_relative_factors(self):
         # (relative factor)
@@ -78,29 +75,27 @@ class RelativeVelocity(object):
         r_v = np.linalg.norm((d_me - d_you) / self.d_t)  # relative_v
         return r_v
 
-    def f(self, x, a=0.25, b=2.00, c=0.75):
+    def f(self, x):
         """
         eq. (9)
         """
-        f_x = 1 / (1+(abs((x-c) / a)**(2*b))) - 1
+        f_x = 1 / (1+(abs((x-self.c) / self.a)**(2*self.b))) - 1
         return f_x
 
-    def calculation_f_rv_utility(self):
+    def calculation_f_rv_utility(self, s_me, s_you, d_t):
+        self.s_me = s_me
+        self.s_you = s_you
+        self.d_t = d_t
         r_v = self.calculation_relative_factors()
-        f_rv = self.f(r_v, 0.2, 1.2, 0)
+        f_rv = self.f(r_v)
         return f_rv
 
 
 class RelativeDistance(object):
-    def __init__(self, prev_s_me, s_me, next_s_me,
-                 prev_s_you, s_you, next_s_you, d_t):
-        self.prev_s_me = prev_s_me
-        self.s_me = s_me
-        self.next_s_me = next_s_me
-        self.prev_s_you = prev_s_you
-        self.s_you = s_you
-        self.next_s_you = next_s_you
-        self.d_t = d_t
+    def __init__(self, a, b, c):
+        self.a = a
+        self.b = b
+        self.c = c
 
     def calculation_relative_factors(self):
         # (relative factor)
@@ -109,30 +104,27 @@ class RelativeDistance(object):
         r_d = np.linalg.norm(p_you - p_me)  # socialrelativedistance
         return r_d
 
-    def f(self, x, a=0.25, b=2.00, c=0.75):
+    def f(self, x):
         """
         eq. (9)
         """
-        f_x = 1 / (1+(abs((x-c) / a)**(2*b))) - 1
+        f_x = 1 / (1+(abs((x-self.c) / self.a)**(2*self.b))) - 1
         return f_x
 
-    def calculation_f_rd_utility(self):
+    def calculation_f_rd_utility(self, s_me, s_you, d_t):
+        self.s_me = s_me
+        self.s_you = s_you
+        self.d_t = d_t
         r_d = self.calculation_relative_factors()
-        f_rd = self.f(r_d, 0.25, 2.0, 0.75)
+        f_rd = self.f(r_d)
         return f_rd
 
 
 class RelativeAngle(object):
-    def __init__(self, prev_s_me, s_me, next_s_me,
-                 prev_s_you, s_you, next_s_you, d_t, relative_a):
-        self.prev_s_me = prev_s_me
-        self.s_me = s_me
-        self.next_s_me = next_s_me
-        self.prev_s_you = prev_s_you
-        self.s_you = s_you
-        self.next_s_you = next_s_you
-        self.d_t = d_t
-        self.relative_a = relative_a
+    def __init__(self, a, b, c):
+        self.a = a
+        self.b = b
+        self.c = c
 
     def angb(self, p1, p2):
         # p2からみたp1の相対位置ベクトルの絶対角度
@@ -164,25 +156,26 @@ class RelativeAngle(object):
         r_a = self.relative_angle()
         return r_a
 
-    def f(self, x, a=0.25, b=2.00, c=0.75):
+    def f(self, x):
         """
         eq. (9)
         """
-        f_x = 1 / (1+(abs((x-c) / a)**(2*b))) - 1
+        f_x = 1 / (1+(abs((x-self.c) / self.a)**(2*self.b))) - 1
         return f_x
 
-    def calculation_f_ra_utility(self):
+    def calculation_f_ra_utility(self, s_me, s_you):
+        self.s_me = s_me
+        self.s_you = s_you
         r_a = self.calculation_relative_factors()
-        f_ra = self.f(r_a, 0.08, 3.0, self.relative_a)
+        f_ra = self.f(r_a)
         return f_ra
 
 
 class Acceleration(object):
-    def __init__(self, prev_s, s, next_s, d_t):
-        self.prev_s = prev_s
-        self.s = s
-        self.next_s = next_s
-        self.d_t = d_t
+    def __init__(self, a, b, c):
+        self.a = a
+        self.b = b
+        self.c = c
 
     def m_v(self):
         """eq. (1)
@@ -203,24 +196,28 @@ class Acceleration(object):
         motion_a = self.m_a(prev_m_v, motion_v)
         return motion_a
 
-    def f(self, x, a=0.25, b=2.00, c=0.75):
+    def f(self, x):
         """
         eq. (9)
         """
-        f_x = 1 / (1+(abs((x-c) / a)**(2*b))) - 1
+        f_x = 1 / (1+(abs((x-self.c) / self.a)**(2*self.b))) - 1
         return f_x
 
-    def calculation_f_ma_utility(self):
+    def calculation_f_ma_utility(self, prev_s, s, next_s, d_t):
+        self.prev_s = prev_s
+        self.s = s
+        self.next_s = next_s
+        self.d_t = d_t
         m_a = self.calculation_motion_factors()
-        f_ma = self.f(m_a, 0.2, 1.0, 0.0)
+        f_ma = self.f(m_a)
         return f_ma
 
 
 class Velocity(object):
-    def __init__(self, s, next_s, d_t):
-        self.s = s
-        self.next_s = next_s
-        self.d_t = d_t
+    def __init__(self, a, b, c):
+        self.a = a
+        self.b = b
+        self.c = c
 
     def m_v(self):
         """eq. (1)
@@ -234,25 +231,27 @@ class Velocity(object):
         motion_v = self.m_v()
         return motion_v
 
-    def f(self, x, a=0.25, b=2.00, c=0.75):
+    def f(self, x):
         """
         eq. (9)
         """
-        f_x = 1 / (1+(abs((x-c) / a)**(2*b))) - 1
+        f_x = 1 / (1+(abs((x-self.c) / self.a)**(2*self.b))) - 1
         return f_x
 
-    def calculation_f_mv_utility(self):
+    def calculation_f_mv_utility(self, s, next_s, d_t):
+        self.s = s
+        self.next_s = next_s
+        self.d_t = d_t
         m_v = self.calculation_motion_factors()
-        f_mv = self.f(m_v, 0.3, 1.6, 1.10)
+        f_mv = self.f(m_v)
         return f_mv
 
 
 class AngularVelocity(object):
-    def __init__(self, prev_s, s, next_s, d_t):
-        self.prev_s = prev_s
-        self.s = s
-        self.next_s = next_s
-        self.d_t = d_t
+    def __init__(self, a, b, c):
+        self.a = a
+        self.b = b
+        self.c = c
 
     def angb(self, p1, p2):
         # p2からみたp1の相対位置ベクトルの絶対角度
@@ -273,14 +272,18 @@ class AngularVelocity(object):
         motion_w = self.m_w()  # 現在と予測による角速度
         return motion_w
 
-    def f(self, x, a=0.25, b=2.00, c=0.75):
+    def f(self, x):
         """
         eq. (9)
         """
-        f_x = 1 / (1+(abs((x-c) / a)**(2*b))) - 1
+        f_x = 1 / (1+(abs((x-self.c) / self.a)**(2*self.b))) - 1
         return f_x
 
-    def calculation_f_mw_utility(self):
+    def calculation_f_mw_utility(self, prev_s, s, next_s, d_t):
+        self.prev_s = prev_s
+        self.s = s
+        self.next_s = next_s
+        self.d_t = d_t
         m_w = self.calculation_motion_factors()
-        f_mw = self.f(m_w, 0.7, 4.4, 0.0)
+        f_mw = self.f(m_w)
         return f_mw
