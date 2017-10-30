@@ -131,37 +131,33 @@ class PartnerSelfAnticipationPlanner(object):
     def calculation_utility(
             self, prev_s_me, s_me, next_s_me,
             prev_s_you, s_you, next_s_you, subgoal, obstacle):
-        dto_me = DistanceToObstacle(prev_s_me, s_me, next_s_me, obstacle)
-        dto_you = DistanceToObstacle(prev_s_you, s_you, next_s_you, obstacle)
-        mts_me = MovingTowardSubgoals(prev_s_me, s_me, next_s_me, subgoal)
-        mts_you = MovingTowardSubgoals(prev_s_you, s_you, next_s_you, subgoal)
-        rv = RelativeVelocity(prev_s_me, s_me, next_s_me,
-                              prev_s_you, s_you, next_s_you, self.d_t)
-        rd = RelativeDistance(prev_s_me, s_me, next_s_me,
-                              prev_s_you, s_you, next_s_you, self.d_t)
-        ra = RelativeAngle(prev_s_me, s_me, next_s_me,
-                           prev_s_you, s_you, next_s_you,
-                           self.d_t, self.relative_a)
-        v_me = Velocity(s_me, next_s_me, self.d_t)
-        v_you = Velocity(s_you, next_s_you, self.d_t)
-        a_me = Acceleration(prev_s_me, s_me, next_s_me, self.d_t)
-        a_you = Acceleration(prev_s_you, s_you, next_s_you, self.d_t)
-        av_me = AngularVelocity(prev_s_me, s_me, next_s_me, self.d_t)
-        av_you = AngularVelocity(prev_s_you, s_you, next_s_you, self.d_t)
+        dto_me = DistanceToObstacle(a=20.0, b=0.40)
+        dto_you = DistanceToObstacle(a=20.0, b=0.40)
+        mts_me = MovingTowardSubgoals(a=0.45, b=1.00, c=0.0)
+        mts_you = MovingTowardSubgoals(a=0.45, b=1.00, c=0.0)
+        rv = RelativeVelocity(a=0.20, b=1.20, c=0.0)
+        rd = RelativeDistance(a=0.25, b=2.00, c=0.75)
+        ra = RelativeAngle(a=0.08, b=3.00, c=self.relative_a)
+        v_me = Velocity(a=0.30, b=1.6, c=1.10)
+        v_you = Velocity(a=0.30, b=1.6, c=1.10)
+        a_me = Acceleration(a=0.20, b=1.0, c=0.0)
+        a_you = Acceleration(a=0.20, b=1.0, c=0.0)
+        av_me = AngularVelocity(a=0.7, b=4.4, c=0.0)
+        av_you = AngularVelocity(a=0.7, b=4.4, c=0.0)
 
-        f_o_me = dto_me.calculation_f_o_utility()
-        f_o_you = dto_you.calculation_f_o_utility()
-        f_s_me = mts_me.calculation_f_s_utility()
-        f_s_you = mts_you.calculation_f_s_utility()
-        f_rv = rv.calculation_f_rv_utility()
-        f_rd = rd.calculation_f_rd_utility()
-        f_ra = ra.calculation_f_ra_utility()
-        f_mv_me = v_me.calculation_f_mv_utility()
-        f_mv_you = v_you.calculation_f_mv_utility()
-        f_ma_me = a_me.calculation_f_ma_utility()
-        f_ma_you = a_you.calculation_f_ma_utility()
-        f_mw_me = av_me.calculation_f_mw_utility()
-        f_mw_you = av_you.calculation_f_mw_utility()
+        f_o_me = dto_me.calculation_f_o_utility(s_me, obstacle)
+        f_o_you = dto_you.calculation_f_o_utility(s_you, obstacle)
+        f_s_me = mts_me.calculation_f_s_utility(s_me, next_s_me, subgoal)
+        f_s_you = mts_you.calculation_f_s_utility(s_you, next_s_you, subgoal)
+        f_rv = rv.calculation_f_rv_utility(s_me, s_you, self.d_t)
+        f_rd = rd.calculation_f_rd_utility(s_me, s_you, self.d_t)
+        f_ra = ra.calculation_f_ra_utility(s_me, s_you)
+        f_mv_me = v_me.calculation_f_mv_utility(s_me, next_s_me, self.d_t)
+        f_mv_you = v_you.calculation_f_mv_utility(s_you, next_s_you, self.d_t)
+        f_ma_me = a_me.calculation_f_ma_utility(prev_s_me, s_me, next_s_me, self.d_t)
+        f_ma_you = a_you.calculation_f_ma_utility(prev_s_you, s_you, next_s_you, self.d_t)
+        f_mw_me = av_me.calculation_f_mw_utility(prev_s_me, s_me, next_s_me, self.d_t)
+        f_mw_you = av_you.calculation_f_mw_utility(prev_s_you, s_you, next_s_you, self.d_t)
 
         utility_me = (self.k_o * f_o_me + self.k_s * f_s_me +
                       self.k_rv * f_rv + self.k_rd * f_rd + self.k_ra * f_ra +
