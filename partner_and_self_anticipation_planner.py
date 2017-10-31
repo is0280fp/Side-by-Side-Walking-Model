@@ -150,7 +150,7 @@ class PartnerSelfAnticipationPlanner(object):
         f_s_me = mts_me.calculation_f_s_utility(s_me, next_s_me, subgoal)
         f_s_you = mts_you.calculation_f_s_utility(s_you, next_s_you, subgoal)
         f_rv = rv.calculation_f_rv_utility(s_me, s_you, self.d_t)
-        f_rd = rd.calculation_f_rd_utility(s_me, s_you, self.d_t)
+        f_rd = rd.calculation_f_rd_utility(s_me, s_you)
         f_ra = ra.calculation_f_ra_utility(s_me, s_you)
         f_mv_me = v_me.calculation_f_mv_utility(s_me, next_s_me, self.d_t)
         f_mv_you = v_you.calculation_f_mv_utility(s_you, next_s_you, self.d_t)
