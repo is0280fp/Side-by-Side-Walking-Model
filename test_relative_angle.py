@@ -7,17 +7,7 @@ Created on Tue Aug  8 15:10:34 2017
 
 import numpy as np
 import unittest
-import geometry
 import factors
-
-
-def relative_angle(next_p_me, next_p_you, next_d_you):
-    # youの進行方向の絶対角度
-    theta_mae = np.arctan2(next_d_you[1], next_d_you[0])
-    theta_yoko = geometry.angb(next_p_me, next_p_you)
-    theta = theta_yoko - theta_mae
-    r_a = geometry.revision_theta(theta)
-    return r_a
 
 
 class TestRelativeAngle(unittest.TestCase):
