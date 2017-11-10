@@ -10,9 +10,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import partner_and_self_anticipation_planner
 from agents_ver3 import Robot
-from agents_ver3 import AgentState
+from states import AgentState
 from agents_ver3 import Human
-from environment import EnvironmentState
+from environments import EnvironmentState
 
 
 class Logger(object):
@@ -103,9 +103,6 @@ if __name__ == '__main__':
             ])
     subgoals = make_environment([
             [0.1, 0.3]
-            ])
-    obstacles = make_environment([
-            [3, 2]
             ])
 
     d_t = 0.1
