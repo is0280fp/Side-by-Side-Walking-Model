@@ -9,15 +9,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def angb(self, p1, p2):
-        # p2からみたp1の相対位置ベクトルの絶対角度
-        d = np.arctan2(p1[1] - p2[1], p1[0] - p2[0])
-        return d
+#  リファクタリング後
+def absolute_angle(p_base, p_top):
+    # p_baseからみたp_topの相対位置ベクトルの絶対角度
+    d = np.arctan2(p_top[1] - p_base[1], p_top[0] - p_base[0])
+    return d
 
 
-def revision_theta(self, theta):
+def revision_theta(theta):
     """
-    unit test required
+    出力：角度
     """
     theta += np.pi
     theta %= 2 * np.pi
@@ -29,26 +30,26 @@ def revision_theta(self, theta):
     return r_a
 
 
-def m_v(self, p, next_p, d_t):
+def motion_velocity(p, next_p, d_t):
         """eq. (1)
-        unit test required
+        出力：スカラー、速さ
         """
         m_v = np.sqrt(np.sum((next_p - p) ** 2)) / d_t
         return m_v
 
 
-def m_a(self, prev_m_v, motion_v):
+def motion_acceleration(prev_m_v, motion_v):
         """
-        unit test required
+        出力：ベクトル
         """
         m_a = motion_v - prev_m_v
         return m_a
 
 
-def m_w(self, prev_p, p, next_p, d_t):
+def motion_angular_velocity(prev_p, p, next_p, d_t):
         """eq. (2)
-        unit test required
+        出力：角度
         """
-        ang = angb(p, prev_p)       # 時刻tのd_t(direction=向き)
-        next_ang = angb(next_p, p)  # 時刻tのd_t+1(direction=向き)
+        ang = absolute_angle(prev_p, p)       # 時刻tのd_t(direction=向き)
+        next_ang = absolute_angle(p, next_p)  # 時刻t+1のd_t+1(direction=向き)
         return (next_ang - ang) / d_t
