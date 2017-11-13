@@ -22,7 +22,8 @@ def utility_color_map(utility, num_grid_x, num_grid_y, name):
     utility_map = utility.reshape(
             num_grid_y, num_grid_x, num_grid_y, num_grid_x).transpose(
                 0, 2, 1, 3).reshape(num_grid_y**2, num_grid_x**2)
-    plt.matshow(utility_map[21:28, 21:28])
+    print("utlity_map", utility_map.std())
+    plt.matshow(utility_map)
     plt.gca().invert_yaxis()
     plt.title(name)
     plt.colorbar()
