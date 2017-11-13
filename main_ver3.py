@@ -12,7 +12,7 @@ import partner_and_self_anticipation_planner
 from agents_ver3 import Robot
 from states import AgentState
 from agents_ver3 import Human
-from environments import EnvironmentState
+from environment import EnvironmentState
 
 
 class Logger(object):
@@ -33,12 +33,12 @@ class Logger(object):
         relative_distance = np.sqrt((l_p - f_p) * 2)
         plt.plot(*l_p.T, "-o", label="Robot")
         plt.plot(*f_p.T, "*", label="Human")
-#        plt.plot(self.subgoals.T, "^", label="Goal")
+        plt.plot(-0.2, 3.0, "^", label="Goal")
 #        plt.plot(self.obstacles_p.T[0], self.obstacles_p.T[1], "^",
 #                 label="obstacle")
-        print("relative_distance", relative_distance[-1])
-        plt.xticks(np.arange(-0, 2, 0.2))
-        plt.yticks(np.arange(-1.0, 1, 0.2))  # 表の軸を0~20に固定
+#        print("relative_distance", relative_distance[-1])
+        plt.xticks(np.arange(-0.5, 1.5, 0.5))
+        plt.yticks(np.arange(-0.8, 3, 0.5))  # 表の軸を0~20に固定
         plt.grid()
         plt.legend()
         plt.gca().set_aspect('equal')
@@ -90,10 +90,14 @@ def make_environment(ps):
 if __name__ == '__main__':
     # 表描画
     trajectory_a = make_trajectory([
-            [1.49423710358, -0.76229029302],
-            [1.46490391443, -0.736084754334],
-            [1.42321161195, -0.77479323992],
-            [1.36483836463, -0.6274773265]
+#            [0.49423710358, 0.36229029302],
+#            [0.46490391443, 0.336084754334],
+#            [0.42321161195, 0.37479323992],
+#            [0.39483836463, 0.3474773265]
+            [0.73578850047, 0.59751806081],
+            [0.74111587829, 0.537682491898],
+            [0.58094249456, 0.431414990608],
+            [0.46679422611, 0.345349506114]
             ])
     trajectory_b = make_trajectory([
             [1.73578850047, -0.99751806081],
@@ -102,25 +106,25 @@ if __name__ == '__main__':
             [1.46679422611, -0.745349506114]
             ])
     subgoals = make_environment([
-            [0.1, 0.3]
+            [-0.2, 3.0]
             ])
 
     d_t = 0.1
-    num_grid_x = 7
-    num_grid_y = 7
-    search_range_x = 0.05
-    search_range_y = 0.05
+    num_grid_x = 10
+    num_grid_y = 10
+    search_range_x = 0.2
+    search_range_y = 0.2
 
     k_o = 0
-    k_rv = 0.01
-    k_rd = 0.5
-    k_ra = 0.9  # ra = relative_angle
-    k_s = 0.5
-    k_ma = 0.01
-    k_mv = 0.05
-    k_mw = 0.01
+    k_rv = 0.0
+    k_rd = 0
+    k_ra = 0.5  # ra = relative_angle
+    k_s = 0.0
+    k_ma = 0.0
+    k_mv = 0.0
+    k_mw = 0.0
     k_pt = 0  # 新しいfactor
-    length_step = 40
+    length_step = 10
     relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
 
