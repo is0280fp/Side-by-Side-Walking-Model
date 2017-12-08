@@ -118,16 +118,20 @@ class Robot(AgentRobot):
 class Human(AgentHuman):
     def __init__(
             self, subgoals, initial_state, d_t=0.03,
-            trajectory_me=None, trajectory_you=None):
+            trajectory_me=None, trajectory_you=None, filepath=None):
         super(Human, self).__init__(
             subgoals, initial_state, d_t=0.03,
             trajectory_me=None, trajectory_you=None)
-        self.count = -1
+        if filepath is None:
+            self.load_default_trajectory()
+        else:
+            self.load_trajectory(filepath)
 
-    def decide_action(self):
-        #  提案モデルに対する比較手法
-#        self.v = walking_model()
-        ps = ([
+    def load_trajectory(self, filepath):
+        self.ps = np.load(filepath)
+
+    def load_default_trajectory(self):
+        self.ps = np.array(([
         [ 1.39638343552 , -0.670772264944 ] ,
         [ 1.32672097618 , -0.613402891541 ] ,
         [ 1.29423710358 , -0.576229029302 ] ,
@@ -179,7 +183,27 @@ class Human(AgentHuman):
         [ -0.267412572606 , 2.61736334628 ] ,
         [ -0.250503196907 , 2.69662228249 ] ,
         [ -0.234530700857 , 2.80601753206 ] ,
-        [ -0.199066856343 , 2.92899298522 ]])
-        ps = np.array(ps)
-        self.count += 1
-        self.v = ps[self.count]
+        [ -0.199066856343 , 2.92899298522 ]]))
+
+    def decide_action(self):
+        #  提案モデルに対する比較手法
+#        self.v = walking_model()
+#        self.count += 1
+#        self.v = ps[self.count]
+        if self.ps.size != 0:
+            self.v = self.ps[0]
+            self.ps = self.ps[1:]
+
+
+if __name__ == '__main__':
+
+    subgoals = np.array([
+            [-0.2, 3.0]
+            ])
+    initial_state_b = np.array([1.46679422611, -0.745349506114])
+    human_a = Human(subgoals, initial_state_b)
+    assert(human_a.ps.ndim == 2)
+    assert(human_a.ps.shape[1] == 2)
+    human_a = Human(subgoals, initial_state_b, "2017.09.27-14.57.16_kubo.npy")
+    assert(human_a.ps.ndim == 2)
+    assert(human_a.ps.shape[1] == 2)
