@@ -13,6 +13,7 @@ from agents_ver3 import Robot
 from states import AgentState
 from agents_ver3 import Human
 from environment import EnvironmentState
+from utility_visualization import utility_changing_graph
 
 
 class Logger(object):
@@ -124,7 +125,7 @@ if __name__ == '__main__':
     k_mv = 0.0
     k_mw = 0.0
     k_pt = 0  # 新しいfactor
-    length_step = 10
+    length_step = 5
     relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
 
@@ -168,6 +169,14 @@ if __name__ == '__main__':
         logger.display()
         logger.print()
         print("==================================================================================")
-
         n += 1  # インクリメント
 #    logger.display()
+    utility_changing_graph(np.array(human_a.f_ma_me_lst), "f_ma_me")
+    utility_changing_graph(np.array(human_a.f_ma_you_lst), "f_ma_you")
+    utility_changing_graph(np.array(human_a.f_mv_me_lst), "f_mv_me")
+    utility_changing_graph(np.array(human_a.f_mv_you_lst), "f_mv_you")
+    utility_changing_graph(np.array(human_a.f_mw_me_lst), "f_mw_me")
+    utility_changing_graph(np.array(human_a.f_mw_you_lst), "f_mw_you")
+    utility_changing_graph(np.array(human_a.f_ra_lst), "f_ra")
+    utility_changing_graph(np.array(human_a.f_rd_lst), "f_rd")
+    utility_changing_graph(np.array(human_a.f_rv_lst), "f_rv")

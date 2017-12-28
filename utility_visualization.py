@@ -9,8 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def utility_changing_graph(f_o, f_rv, f_rd, f_ra, f_s, f_ma, f_mv, f_mw, name):
-    plt.plot(f_o, "r.-", f_s, "r,-", f_rv, "bo-", f_rd, "b^-",f_ra, "b<-", f_ma, "gh-", f_mv, "gx-", f_mw, "gd-")
+def utility_changing_graph(f, name):
+    plt.plot(f, "r.-")
 #    plt.xticks(np.arange(0, step, 1))   # stepとはステップ数の合計
 #    plt.yticks(np.arange(0, 1, 0.2))
     plt.grid()
@@ -33,6 +33,7 @@ def utility_color_map(utility, num_grid_x, num_grid_y, name):
 def each_utility_visualization():
     pass
 
+
 if __name__ == '__main__':
     f_o = [0.5, 1]
     f_rv = [1, 1.5]
@@ -42,4 +43,8 @@ if __name__ == '__main__':
     f_ma = [3.0, 3.5]
     f_mv = [3.5, 4.0]
     f_mw = [4.0, 4.5]
-    utility_changing_graph(f_o, f_rv, f_rd, f_ra, f_s, f_ma, f_mv, f_mw, "utility")
+    f = np.array([[1],
+                 [1.03],
+                 [1.06],
+                 [1.09]])
+    utility_changing_graph(f, "utility")
