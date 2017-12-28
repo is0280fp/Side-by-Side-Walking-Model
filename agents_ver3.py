@@ -27,6 +27,20 @@ class AgentRobot(object):
         self.d_t = d_t
         self.planner = planner
 
+        self.f_ma_me_lst = []
+        self.f_ma_you_lst = []
+        self.f_mv_me_lst = []
+        self.f_mv_you_lst = []
+        self.f_mw_me_lst = []
+        self.f_mw_you_lst = []
+        self.f_ra_lst = []
+        self.f_rd_lst = []
+        self.f_rv_lst = []
+        self.f_o_me_lst = []
+        self.f_o_you_lst = []
+        self.f_s_me_lst = []
+        self.f_s_you_lst = []
+
     def get_current_subgoal(self):
         return self.subgoals[0]
 
@@ -106,9 +120,24 @@ class Robot(AgentRobot):
     def decide_action(self):
         current_subgoal = self.get_current_subgoal()
         closest_obstacle = self.closest_obstacle()
-        next_p = self.planner.decide_action(
+        next_p, f_ma_me, f_ma_you, f_mv_me, f_mv_you, \
+            f_mw_me, f_mw_you, f_ra, f_rd, f_rv, f_o_me, f_o_you, \
+            f_s_me, f_s_you = self.planner.decide_action(
                 self.trajectory_me, self.trajectory_you,
                 current_subgoal, closest_obstacle)
+        self.f_ma_me_lst.append(f_ma_me)
+        self.f_ma_you_lst.append(f_ma_you)
+        self.f_mv_me_lst.append(f_mv_me)
+        self.f_mv_you_lst.append(f_mv_you)
+        self.f_mw_me_lst.append(f_mw_me)
+        self.f_mw_you_lst.append(f_mw_you)
+        self.f_ra_lst.append(f_ra)
+        self.f_rd_lst.append(f_rd)
+        self.f_rv_lst.append(f_rv)
+        self.f_o_me_lst.append(f_o_me)
+        self.f_o_you_lst.append(f_o_you)
+        self.f_s_me_lst.append(f_s_me)
+        self.f_s_you_lst.append(f_s_you)
         current_p = self.s.p
         self.v = next_p - current_p
 

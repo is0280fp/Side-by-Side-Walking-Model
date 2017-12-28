@@ -3,12 +3,12 @@
 Created on Thu Jul 20 18:06:45 2017
 
 @author: yume
+
 """
 
 import numpy as np
 import itertools
 from agents_ver3 import AgentState
-from utility_visualization import utility_changing_graph
 from utility_visualization import utility_color_map
 from utility import DistanceToObstacle
 from utility import MovingTowardSubgoals
@@ -48,6 +48,19 @@ class PartnerSelfAnticipationPlanner(object):
         utility_me = []
         utility_you = []
         utility = []
+        f_o_me_lst = []
+        f_o_you_lst = []
+        f_s_me_lst = []
+        f_s_you_lst = []
+        f_rv_lst = []
+        f_rd_lst = []
+        f_ra_lst = []
+        f_mv_me_lst = []
+        f_mv_you_lst = []
+        f_ma_me_lst = []
+        f_ma_you_lst = []
+        f_mw_me_lst = []
+        f_mw_you_lst = []
 
         s_me = trajectory_me[-1]  # 真の位置
         s_you = trajectory_you[-1]
@@ -84,19 +97,50 @@ class PartnerSelfAnticipationPlanner(object):
             next_s_me = AgentState(next_p_me, next_d_me)
             next_d_you = next_p_you - s_you.p
             next_s_you = AgentState(next_p_you, next_d_you)
-            u_me, u_you = \
-                self.calculation_utility(
+            u_me, u_you, f_ma_me, f_ma_you, f_mv_me, f_mv_you, \
+                f_mw_me, f_mw_you, f_ra, f_rd, f_rv, f_o_me, f_o_you, \
+                f_s_me, f_s_you = self.calculation_utility(
                     prev_s_me, s_me, next_s_me,
                     prev_s_you, s_you, next_s_you, subgoal, obstacle)
             utility_me.append(u_me)
             utility_you.append(u_you)
             utility.append(u_me + u_you)
+            #                1ステップの全グリッドのutilityを持つリスト
+            f_o_me_lst.append(f_o_me)
+            f_o_you_lst.append(f_o_you)
+            f_s_me_lst.append(f_s_me)
+            f_s_you_lst.append(f_s_you)
+            f_rv_lst.append(f_rv)
+            f_rd_lst.append(f_rd)
+            f_ra_lst.append(f_ra)
+            f_mv_me_lst.append(f_mv_me)
+            f_mv_you_lst.append(f_mv_you)
+            f_ma_me_lst.append(f_ma_me)
+            f_ma_you_lst.append(f_ma_you)
+            f_mw_me_lst.append(f_mw_me)
+            f_mw_you_lst.append(f_mv_you)
 
         utility = np.array(utility)
+        f_ma_me_max = np.array(f_ma_me_lst).max()
+        f_ma_you_max = np.array(f_ma_you_lst).max()
+        f_mv_me_max = np.array(f_mv_me_lst).max()
+        f_mv_you_max = np.array(f_mv_you_lst).max()
+        f_mw_me_max = np.array(f_mw_me_lst).max()
+        f_mw_you_max = np.array(f_mw_you_lst).max()
+        f_ra_max = np.array(f_ra_lst).max()
+        f_rd_max = np.array(f_rd_lst).max()
+        f_rv_max = np.array(f_rv_lst).max()
+        f_o_me_max = np.array(f_o_me_lst).max()
+        f_o_you_max = np.array(f_o_you_lst).max()
+        f_s_me_max = np.array(f_s_me_lst).max()
+        f_s_you_max = np.array(f_s_you_lst).max()
         utility_color_map(utility, self.num_grid_x, self.num_grid_y, "utility")
 
         predicted_p_you, predicted_p_me = each_other_p[utility.argmax()]
-        return predicted_p_me
+        return predicted_p_me, \
+            f_ma_me_max, f_ma_you_max, f_mv_me_max, f_mv_you_max, f_mw_me_max,\
+            f_mw_you_max, f_ra_max, f_rd_max, f_rv_max, \
+            f_o_me_max, f_o_you_max, f_s_me_max, f_s_you_max
 
     def linear_extrapolation(self, trajectory):
         """位置の履歴から次の時刻の位置を等速直線運動で予測する
@@ -131,6 +175,8 @@ class PartnerSelfAnticipationPlanner(object):
     def calculation_utility(
             self, prev_s_me, s_me, next_s_me,
             prev_s_you, s_you, next_s_you, subgoal, obstacle):
+
+
         dto_me = DistanceToObstacle(a=20.0, b=0.40)
         dto_you = DistanceToObstacle(a=20.0, b=0.40)
         mts_me = MovingTowardSubgoals(a=0.45, b=1.00, c=0.0)
@@ -165,7 +211,8 @@ class PartnerSelfAnticipationPlanner(object):
         utility_you = (self.k_o * f_o_you + self.k_s * f_s_you +
                        self.k_rv * f_rv + self.k_rd * f_rd +
                        self.k_ra * f_ra + self.k_ma * f_ma_you + self.k_mv * f_mv_you + self.k_mw * f_mw_you)
-        return utility_me, utility_you
+        return utility_me, utility_you, f_ma_me, f_ma_you, f_mv_me, f_mv_you, \
+            f_mw_me, f_mw_you, f_ra, f_rd, f_rv, f_o_me, f_o_you, f_s_me, f_s_you
 
 
 if __name__ == '__main__':
