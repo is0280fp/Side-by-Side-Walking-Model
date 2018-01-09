@@ -61,6 +61,7 @@ class PartnerSelfAnticipationPlanner(object):
         f_ma_you_lst = []
         f_mw_me_lst = []
         f_mw_you_lst = []
+        ra_theta_lst = []
 
         s_me = trajectory_me[-1]  # 真の位置
         s_you = trajectory_you[-1]
@@ -99,7 +100,7 @@ class PartnerSelfAnticipationPlanner(object):
             next_s_you = AgentState(next_p_you, next_d_you)
             u_me, u_you, f_ma_me, f_ma_you, f_mv_me, f_mv_you, \
                 f_mw_me, f_mw_you, f_ra, f_rd, f_rv, f_o_me, f_o_you, \
-                f_s_me, f_s_you = self.calculation_utility(
+                f_s_me, f_s_you, ra_theta = self.calculation_utility(
                     prev_s_me, s_me, next_s_me,
                     prev_s_you, s_you, next_s_you, subgoal, obstacle)
             utility_me.append(u_me)
@@ -118,7 +119,8 @@ class PartnerSelfAnticipationPlanner(object):
             f_ma_me_lst.append(f_ma_me)
             f_ma_you_lst.append(f_ma_you)
             f_mw_me_lst.append(f_mw_me)
-            f_mw_you_lst.append(f_mv_you)
+            f_mw_you_lst.append(f_mw_you)
+            ra_theta_lst.append(ra_theta)
 
         utility = np.array(utility)
         f_ma_me_max = np.array(f_ma_me_lst).max()
@@ -134,13 +136,15 @@ class PartnerSelfAnticipationPlanner(object):
         f_o_you_max = np.array(f_o_you_lst).max()
         f_s_me_max = np.array(f_s_me_lst).max()
         f_s_you_max = np.array(f_s_you_lst).max()
+        model_cal_ra_theta = ra_theta_lst[np.array(f_ra_lst).argmax()]
+
         utility_color_map(utility, self.num_grid_x, self.num_grid_y, "utility")
 
         predicted_p_you, predicted_p_me = each_other_p[utility.argmax()]
         return predicted_p_me, \
             f_ma_me_max, f_ma_you_max, f_mv_me_max, f_mv_you_max, f_mw_me_max,\
             f_mw_you_max, f_ra_max, f_rd_max, f_rv_max, \
-            f_o_me_max, f_o_you_max, f_s_me_max, f_s_you_max
+            f_o_me_max, f_o_you_max, f_s_me_max, f_s_you_max, model_cal_ra_theta
 
     def linear_extrapolation(self, trajectory):
         """位置の履歴から次の時刻の位置を等速直線運動で予測する
@@ -197,7 +201,7 @@ class PartnerSelfAnticipationPlanner(object):
         f_s_you = mts_you.calculation_f_s_utility(s_you, next_s_you, subgoal)
         f_rv = rv.calculation_f_rv_utility(s_me, s_you, self.d_t)
         f_rd = rd.calculation_f_rd_utility(s_me, s_you)
-        f_ra = ra.calculation_f_ra_utility(s_me, s_you)
+        f_ra, ra_theta = ra.calculation_f_ra_utility(s_me, s_you)
         f_mv_me = v_me.calculation_f_mv_utility(s_me, next_s_me, self.d_t)
         f_mv_you = v_you.calculation_f_mv_utility(s_you, next_s_you, self.d_t)
         f_ma_me = a_me.calculation_f_ma_utility(prev_s_me, s_me, next_s_me, self.d_t)
@@ -212,7 +216,7 @@ class PartnerSelfAnticipationPlanner(object):
                        self.k_rv * f_rv + self.k_rd * f_rd +
                        self.k_ra * f_ra + self.k_ma * f_ma_you + self.k_mv * f_mv_you + self.k_mw * f_mw_you)
         return utility_me, utility_you, f_ma_me, f_ma_you, f_mv_me, f_mv_you, \
-            f_mw_me, f_mw_you, f_ra, f_rd, f_rv, f_o_me, f_o_you, f_s_me, f_s_you
+            f_mw_me, f_mw_you, f_ra, f_rd, f_rv, f_o_me, f_o_you, f_s_me, f_s_you, ra_theta
 
 
 if __name__ == '__main__':

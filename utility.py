@@ -165,7 +165,7 @@ class RelativeAngle(object):
         d_you = self.s_you.d
         r_a = self.calculation_relative_factors(p_me, p_you, d_you)
         f_ra = self.f(r_a)
-        return f_ra
+        return f_ra, r_a
 
 
 class Acceleration(object):
