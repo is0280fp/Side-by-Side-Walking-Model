@@ -79,15 +79,6 @@ def make_trajectory(ps):
     return trajectory
 
 
-def make_environment(ps):
-    ps = np.array(ps)
-    environmental_map = []
-    for p in ps[0:]:
-        state = EnvironmentState(p)
-        environmental_map.append(state)
-    return environmental_map
-
-
 if __name__ == '__main__':
     # 表描画
 #    実測値
@@ -105,9 +96,8 @@ if __name__ == '__main__':
             ])
 #    テスト用の簡単な軌跡
 
-    subgoals = make_environment([
-            [-0.2, 3.0]
-            ])
+    subgoals = [np.array([-0.2, 3.0])]
+    obstacles = []
 
     d_t = 0.1
     num_grid_x = 10
@@ -152,7 +142,7 @@ if __name__ == '__main__':
 #        print("n", n)
     while n < length_step:
 
-        human_a.measure(human_a.s, human_b.s, [3, 2])
+        human_a.measure(human_a.s, human_b.s, subgoals, obstacles)
         human_b.measure(human_b.s, human_a.s)
 
         human_a.decide_action()
