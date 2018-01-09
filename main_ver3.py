@@ -123,11 +123,14 @@ if __name__ == '__main__':
     initial_state_b = trajectory_b[-1]
 #    aさんはwalking_modelに基づいて，経路計画する
 #   bさんはutilityに基づいて，経路計画する
+    scraper = partner_and_self_anticipation_planner.UtilityScraper(
+            num_grid_x, num_grid_y)
+
     planner_a = \
         partner_and_self_anticipation_planner.PartnerSelfAnticipationPlanner(
                 "a", num_grid_x, num_grid_y, search_range_x, search_range_y,
                 k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, k_pt, d_t,
-                relative_angle_a)
+                relative_angle_a, scraper)
     human_a = Robot(
         subgoals, initial_state_a, planner_a, d_t, trajectory_a, trajectory_b)
 
@@ -159,14 +162,6 @@ if __name__ == '__main__':
         logger.print()
         print("==================================================================================")
         n += 1  # インクリメント
-#    logger.display()
-    utility_changing_graph(np.array(human_a.f_ma_me_lst), "f_ma_me")
-    utility_changing_graph(np.array(human_a.f_ma_you_lst), "f_ma_you")
-    utility_changing_graph(np.array(human_a.f_mv_me_lst), "f_mv_me")
-    utility_changing_graph(np.array(human_a.f_mv_you_lst), "f_mv_you")
-    utility_changing_graph(np.array(human_a.f_mw_me_lst), "f_mw_me")
-    utility_changing_graph(np.array(human_a.f_mw_you_lst), "f_mw_you")
-    utility_changing_graph(np.array(human_a.f_ra_lst), "f_ra")
-    utility_changing_graph(np.array(human_a.f_rd_lst), "f_rd")
-    utility_changing_graph(np.array(human_a.f_rv_lst), "f_rv")
-    utility_changing_graph(np.array(human_a.ra_lst), "ra_theta")
+
+        for name, lst in scraper.get_utility_maps().items():
+            utility_changing_graph(lst.max((1, 2, 3, 4)), name)

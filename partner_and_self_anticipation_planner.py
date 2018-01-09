@@ -6,6 +6,7 @@ Created on Thu Jul 20 18:06:45 2017
 
 """
 
+from collections import defaultdict
 import numpy as np
 import itertools
 from agents_ver3 import AgentState
@@ -27,7 +28,7 @@ class PartnerSelfAnticipationPlanner(object):
                  search_range_x=0.6, search_range_y=0.6,
                  k_o=0.11, k_rv=0.01, k_rd=0.25, k_ra=0.32, k_s=0.2,
                  k_ma=0.01, k_mv=0.05, k_mw=0.01, k_pt=0,
-                 d_t=0.03, relative_a=None):
+                 d_t=0.03, relative_a=None, scraper=None):
         self.name = name
         self.num_grid_x = num_grid_x
         self.num_grid_y = num_grid_y
@@ -44,26 +45,13 @@ class PartnerSelfAnticipationPlanner(object):
         self.k_pt = k_pt
         self.d_t = d_t
         self.relative_a = np.deg2rad(relative_a)
+        self.scraper = scraper
 
     def decide_action(self, trajectory_me, trajectory_you,
                       subgoals, obstacles):
         utility_me = []
         utility_you = []
         utility = []
-        f_o_me_lst = []
-        f_o_you_lst = []
-        f_s_me_lst = []
-        f_s_you_lst = []
-        f_rv_lst = []
-        f_rd_lst = []
-        f_ra_lst = []
-        f_mv_me_lst = []
-        f_mv_you_lst = []
-        f_ma_me_lst = []
-        f_ma_you_lst = []
-        f_mw_me_lst = []
-        f_mw_you_lst = []
-        ra_theta_lst = []
 
         s_me = trajectory_me[-1]  # 真の位置
         s_you = trajectory_you[-1]
@@ -100,9 +88,7 @@ class PartnerSelfAnticipationPlanner(object):
             next_d_you = next_p_you - s_you.p
             states_me = States(prev_s_me, s_me, AgentState(next_p_me, next_d_me))
             states_you = States(prev_s_you, s_you, AgentState(next_p_you, next_d_you))
-            u_me, u_you, f_ma_me, f_ma_you, f_mv_me, f_mv_you, \
-                f_mw_me, f_mw_you, f_ra, f_rd, f_rv, f_o_me, f_o_you, \
-                f_s_me, f_s_you = self.calculation_utility(
+            u_me, u_you = self.calculation_utility(
                     states_me, states_you, subgoal, obstacle)
             utility_me.append(u_me)
             utility_you.append(u_you)
@@ -114,42 +100,13 @@ class PartnerSelfAnticipationPlanner(object):
             s_you = AgentState(next_p_you, next_d_you)
 
             #                1ステップの全グリッドのutilityを持つリスト
-            f_o_me_lst.append(f_o_me)
-            f_o_you_lst.append(f_o_you)
-            f_s_me_lst.append(f_s_me)
-            f_s_you_lst.append(f_s_you)
-            f_rv_lst.append(f_rv)
-            f_rd_lst.append(f_rd)
-            f_ra_lst.append(f_ra)
-            f_mv_me_lst.append(f_mv_me)
-            f_mv_you_lst.append(f_mv_you)
-            f_ma_me_lst.append(f_ma_me)
-            f_ma_you_lst.append(f_ma_you)
-            f_mw_me_lst.append(f_mw_me)
-            f_mw_you_lst.append(f_mw_you)
 
         utility = np.array(utility)
-        f_ma_me_max = np.array(f_ma_me_lst).max()
-        f_ma_you_max = np.array(f_ma_you_lst).max()
-        f_mv_me_max = np.array(f_mv_me_lst).max()
-        f_mv_you_max = np.array(f_mv_you_lst).max()
-        f_mw_me_max = np.array(f_mw_me_lst).max()
-        f_mw_you_max = np.array(f_mw_you_lst).max()
-        f_ra_max = np.array(f_ra_lst).max()
-        f_rd_max = np.array(f_rd_lst).max()
-        f_rv_max = np.array(f_rv_lst).max()
-        f_o_me_max = np.array(f_o_me_lst).max()
-        f_o_you_max = np.array(f_o_you_lst).max()
-        f_s_me_max = np.array(f_s_me_lst).max()
-        f_s_you_max = np.array(f_s_you_lst).max()
 
         utility_color_map(utility, self.num_grid_x, self.num_grid_y, "utility")
 
         predicted_p_you, predicted_p_me = each_other_p[utility.argmax()]
-        return predicted_p_me, \
-            f_ma_me_max, f_ma_you_max, f_mv_me_max, f_mv_you_max, f_mw_me_max,\
-            f_mw_you_max, f_ra_max, f_rd_max, f_rv_max, \
-            f_o_me_max, f_o_you_max, f_s_me_max, f_s_you_max
+        return predicted_p_me
 
     def linear_extrapolation(self, trajectory):
         """位置の履歴から次の時刻の位置を等速直線運動で予測する
@@ -212,14 +169,46 @@ class PartnerSelfAnticipationPlanner(object):
         f_mw_me = av_me.score(states_me, None, None, None)
         f_mw_you = av_you.score(states_you, None, None, None)
 
+        self.scraper.add(f_ma_me, f_ma_you, f_mv_me, f_mv_you,
+                         f_mw_me, f_mw_you, f_ra, f_rd, f_rv,
+                         f_o_me, f_o_you, f_s_me, f_s_you)
+
         utility_me = (self.k_o * f_o_me + self.k_s * f_s_me +
                       self.k_rv * f_rv + self.k_rd * f_rd + self.k_ra * f_ra +
                       self.k_ma * f_ma_me + self.k_mv * f_mv_me + self.k_mw * f_mw_me)
         utility_you = (self.k_o * f_o_you + self.k_s * f_s_you +
                        self.k_rv * f_rv + self.k_rd * f_rd +
                        self.k_ra * f_ra + self.k_ma * f_ma_you + self.k_mv * f_mv_you + self.k_mw * f_mw_you)
-        return utility_me, utility_you, f_ma_me, f_ma_you, f_mv_me, f_mv_you, \
-            f_mw_me, f_mw_you, f_ra, f_rd, f_rv, f_o_me, f_o_you, f_s_me, f_s_you
+        return utility_me, utility_you
+
+
+class UtilityScraper(object):
+    def __init__(self, num_grid_x, num_grid_y):
+        self.num_grid_x = num_grid_x
+        self.num_grid_y = num_grid_y
+        self.utilities = defaultdict(list)
+
+    def add(self, f_ma_me, f_ma_you, f_mv_me, f_mv_you, \
+            f_mw_me, f_mw_you, f_ra, f_rd, f_rv, f_o_me, f_o_you, f_s_me, f_s_you):
+        self.utilities["f_o_me"].append(f_o_me)
+        self.utilities["f_o_you"].append(f_o_you)
+        self.utilities["f_s_me"].append(f_s_me)
+        self.utilities["f_s_you"].append(f_s_you)
+        self.utilities["f_rv"].append(f_rv)
+        self.utilities["f_rd"].append(f_rd)
+        self.utilities["f_ra"].append(f_ra)
+        self.utilities["f_mv_me"].append(f_mv_me)
+        self.utilities["f_mv_you"].append(f_mv_you)
+        self.utilities["f_ma_me"].append(f_ma_me)
+        self.utilities["f_ma_you"].append(f_ma_you)
+        self.utilities["f_mw_me"].append(f_mw_me)
+        self.utilities["f_mw_you"].append(f_mw_you)
+
+    def get_utility_maps(self):
+        maps = {}
+        for name, lst in self.utilities.items():
+            maps[name] = np.reshape(lst, (-1, self.num_grid_y, self.num_grid_x, self.num_grid_y, self.num_grid_x))
+        return maps
 
 
 if __name__ == '__main__':
