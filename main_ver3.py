@@ -90,11 +90,8 @@ def make_environment(ps):
 
 if __name__ == '__main__':
     # 表描画
+#    実測値
     trajectory_a = make_trajectory([
-#            [0.49423710358, 0.36229029302],
-#            [0.46490391443, 0.336084754334],
-#            [0.42321161195, 0.37479323992],
-#            [0.39483836463, 0.3474773265]
             [0.73578850047, 0.59751806081],
             [0.74111587829, 0.537682491898],
             [0.58094249456, 0.431414990608],
@@ -106,6 +103,8 @@ if __name__ == '__main__':
             [1.58094249456, -0.831414990608],
             [1.46679422611, -0.745349506114]
             ])
+#    テスト用の簡単な軌跡
+
     subgoals = make_environment([
             [-0.2, 3.0]
             ])
@@ -180,3 +179,4 @@ if __name__ == '__main__':
     utility_changing_graph(np.array(human_a.f_ra_lst), "f_ra")
     utility_changing_graph(np.array(human_a.f_rd_lst), "f_rd")
     utility_changing_graph(np.array(human_a.f_rv_lst), "f_rv")
+    utility_changing_graph(np.array(human_a.ra_lst), "ra_theta")
