@@ -16,11 +16,11 @@ class BaseFactor(object):
         self.c = c
         self.d_t = d_t
 
-    def factor(self, state, environment):
+    def factor(self, states_me, states_you=None, subgoal=None, obstacle=None):
         raise NotImplementedError("Do not use this class directoly")
 
-    def score(self, state, environment):
-        x = self.factor(state, environment)
+    def score(self, states_me, states_you=None, subgoal=None, obstacle=None):
+        x = self.factor(states_me, states_you, subgoal, obstacle)
         return self.f(x)
 
     def f(self, x):

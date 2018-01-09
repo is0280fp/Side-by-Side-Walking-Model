@@ -45,10 +45,11 @@ class AgentRobot(object):
     def get_current_subgoal(self):
         return self.subgoals[0]
 
-    def measure(self, s_me, s_you, environment):
+    def measure(self, s_me, s_you, subgoal, obstacle):
         self.trajectory_me.append(s_me)
         self.trajectory_you.append(s_you)
-        self.environment = environment
+        self.subgoal = subgoal
+        self.obstacle = obstacle
 
     def estimate(self):
         pass
@@ -59,7 +60,7 @@ class AgentRobot(object):
 
     def move(self):
         self.s.p = self.s.p + self.v
-        dif = self.get_current_subgoal().p - self.s.p
+        dif = self.get_current_subgoal() - self.s.p
         self.s.d = dif / np.linalg.norm(dif)
 
     def __repr__(self):
@@ -95,7 +96,7 @@ class AgentHuman(object):
 
     def move(self):
         self.s.p = self.v
-        dif = self.subgoal.p - self.s.p
+        dif = self.subgoal - self.s.p
         self.s.d = dif / np.linalg.norm(dif)
 
     def __repr__(self):
@@ -115,7 +116,7 @@ class AgentState(object):
 # plotする範囲を指定、plot数も指定
 class Robot(AgentRobot):
     def closest_obstacle(self):
-        closest_obstacle = self.environment
+        closest_obstacle = self.obstacle
         return closest_obstacle
 
     def decide_action(self):
@@ -123,7 +124,7 @@ class Robot(AgentRobot):
         closest_obstacle = self.closest_obstacle()
         next_p, f_ma_me, f_ma_you, f_mv_me, f_mv_you, \
             f_mw_me, f_mw_you, f_ra, f_rd, f_rv, f_o_me, f_o_you, \
-            f_s_me, f_s_you, ra_theta = self.planner.decide_action(
+            f_s_me, f_s_you = self.planner.decide_action(
                 self.trajectory_me, self.trajectory_you,
                 current_subgoal, closest_obstacle)
         self.f_ma_me_lst.append(f_ma_me)
@@ -139,7 +140,6 @@ class Robot(AgentRobot):
         self.f_o_you_lst.append(f_o_you)
         self.f_s_me_lst.append(f_s_me)
         self.f_s_you_lst.append(f_s_you)
-        self.ra_lst.append(ra_theta)
         current_p = self.s.p
         self.v = next_p - current_p
 

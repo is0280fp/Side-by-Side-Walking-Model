@@ -16,9 +16,9 @@ from geometry import motion_angular_velocity
 
 
 class RelativeVelocity(BaseFactor):
-    def factor(self, states, environment):
-        d_me = states.s_me.d_me
-        d_you = states.s_you.d_you
+    def factor(self, states_me, states_you, subgoal=None, obstacle=None):
+        d_me = states_me.s.d
+        d_you = states_you.s.d
         return self.relative_velocity(d_me, d_you, self.d_t)
 
     def relative_velocity(self, d_me, d_you, d_t):
@@ -29,9 +29,9 @@ class RelativeVelocity(BaseFactor):
 
 
 class RelativeDistance(BaseFactor):
-    def factor(self, states, environment):
-        p_me = states.s_me.p_me
-        p_you = states.s_you.p_you
+    def factor(self, states_me, states_you, subgoal=None, obstacle=None):
+        p_me = states_me.s.p
+        p_you = states_you.s.p
         return self.relative_distance(p_me, p_you)
 
     def relative_distance(self, p_me, p_you):
@@ -39,10 +39,10 @@ class RelativeDistance(BaseFactor):
 
 
 class RelativeAngle(BaseFactor):
-    def factor(self, states, environment):
-        p_me = states.s_me.p_me
-        p_you = states.s_you.p_you
-        d_you = states.s_you.d_you
+    def factor(self, states_me, states_you, subgoal=None, obstacle=None):
+        p_me = states_me.s.p
+        p_you = states_you.s.p
+        d_you = states_you.s.d
         return self.relative_angle(p_me, p_you, d_you)
 
     def relative_angle(self, p_me, p_you, d_you):
@@ -58,9 +58,9 @@ class RelativeAngle(BaseFactor):
 
 
 class Velocity(BaseFactor):
-    def factor(self, states, environment):
-        p = states.s_me.p_me
-        next_p = states.next_s_me.next_p_me
+    def factor(self, states_me, states_you=None, subgoal=None, obstacle=None):
+        p = states_me.s.p
+        next_p = states_me.next_s.p
         return self.velocity(p, next_p, self.d_t)
 
     def velocity(self, p, next_p, d_t):
@@ -68,10 +68,10 @@ class Velocity(BaseFactor):
 
 
 class Acceleration(BaseFactor):
-    def factor(self, states, environment):
-        prev_p = states.prev_s_me.prev_p_me
-        p = states.s_me.p_me
-        next_p = states.next_s_me.next_p_me
+    def factor(self, states_me, states_you=None, subgoal=None, obstacle=None):
+        prev_p = states_me.prev_s.p
+        p = states_me.s.p
+        next_p = states_me.next_s.p
         return self.acceleration(prev_p, p, next_p, self.d_t)
 
     def acceleration(self, prev_p, p, next_p, d_t):
@@ -81,10 +81,10 @@ class Acceleration(BaseFactor):
 
 
 class AngularVelocity(BaseFactor):
-    def factor(self, states, environment):
-        prev_p = states.prev_s_me.prev_p_me
-        p = states.s_me.p_me
-        next_p = states.next_s_me.next_p_me
+    def factor(self, states_me, states_you=None, subgoal=None, obstacle=None):
+        prev_p = states_me.prev_s.p
+        p = states_me.s.p
+        next_p = states_me.next_s.p
         return self.angularvelocity(prev_p, p, next_p, self.d_t)
 
     def angularvelocity(self, prev_p, p, next_p, d_t):
@@ -93,10 +93,10 @@ class AngularVelocity(BaseFactor):
 
 
 class MovingTowardSubgoals(BaseFactor):
-    def factor(self, states, environment):
-        p = states.s_me.p_me
-        next_p = states.next_s_me.next_p_me
-        subgoal_p = environment.current_subgoal
+    def factor(self, states_me, states_you=None, subgoal=None, obstacle=None):
+        p = states_me.s.p
+        next_p = states_me.next_s.p
+        subgoal_p = subgoal
         return self.moving_toward_subgoals(p, next_p, subgoal_p)
 
     def moving_toward_subgoals(self, p, next_p, subgoal_p):
@@ -105,10 +105,24 @@ class MovingTowardSubgoals(BaseFactor):
 
 
 class DistanceToObstacle(BaseFactor):
-    def factor(self, states, environment):
-        p = states.s_me.p_me
-        obstacle_p = environment.closest_obstacle
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def factor(self, states_me, states_you=None, subgoal=None, obstacle=None):
+        p = states_me.s.p
+        obstacle_p = obstacle
+        if not obstacle_p:
+            return np.inf
         return self.distance_to_obstacle(p, obstacle_p)
 
     def distance_to_obstacle(self, p, obstacle_p):
         return np.sqrt(np.sum((obstacle_p - p) ** 2))
+
+    def f(self, x):
+        """
+        eq. (9)
+        unit test required
+        """
+        f_x = - np.abs((self.a / x) ** (2*self.b))
+        return f_x

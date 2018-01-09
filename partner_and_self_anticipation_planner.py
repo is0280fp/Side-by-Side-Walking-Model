@@ -9,15 +9,17 @@ Created on Thu Jul 20 18:06:45 2017
 import numpy as np
 import itertools
 from agents_ver3 import AgentState
+from states import States
+from environment import EnvironmentState
 from utility_visualization import utility_color_map
-from utility import DistanceToObstacle
-from utility import MovingTowardSubgoals
-from utility import RelativeVelocity
-from utility import RelativeDistance
-from utility import RelativeAngle
-from utility import Velocity
-from utility import AngularVelocity
-from utility import Acceleration
+from factors import DistanceToObstacle
+from factors import MovingTowardSubgoals
+from factors import RelativeVelocity
+from factors import RelativeDistance
+from factors import RelativeAngle
+from factors import Velocity
+from factors import AngularVelocity
+from factors import Acceleration
 
 
 class PartnerSelfAnticipationPlanner(object):
@@ -95,17 +97,22 @@ class PartnerSelfAnticipationPlanner(object):
         each_other_p = list(itertools.product(grid_points_you, grid_points_me))
         for next_p_you, next_p_me in each_other_p:
             next_d_me = next_p_me - s_me.p
-            next_s_me = AgentState(next_p_me, next_d_me)
             next_d_you = next_p_you - s_you.p
-            next_s_you = AgentState(next_p_you, next_d_you)
+            states_me = States(prev_s_me, s_me, AgentState(next_p_me, next_d_me))
+            states_you = States(prev_s_you, s_you, AgentState(next_p_you, next_d_you))
             u_me, u_you, f_ma_me, f_ma_you, f_mv_me, f_mv_you, \
                 f_mw_me, f_mw_you, f_ra, f_rd, f_rv, f_o_me, f_o_you, \
-                f_s_me, f_s_you, ra_theta = self.calculation_utility(
-                    prev_s_me, s_me, next_s_me,
-                    prev_s_you, s_you, next_s_you, subgoal, obstacle)
+                f_s_me, f_s_you = self.calculation_utility(
+                    states_me, states_you, subgoal, obstacle)
             utility_me.append(u_me)
             utility_you.append(u_you)
             utility.append(u_me + u_you)
+
+            prev_s_me = s_me
+            s_me = AgentState(next_p_me, next_d_me)
+            prev_s_you = s_you
+            s_you = AgentState(next_p_you, next_d_you)
+
             #                1ステップの全グリッドのutilityを持つリスト
             f_o_me_lst.append(f_o_me)
             f_o_you_lst.append(f_o_you)
@@ -120,7 +127,6 @@ class PartnerSelfAnticipationPlanner(object):
             f_ma_you_lst.append(f_ma_you)
             f_mw_me_lst.append(f_mw_me)
             f_mw_you_lst.append(f_mw_you)
-            ra_theta_lst.append(ra_theta)
 
         utility = np.array(utility)
         f_ma_me_max = np.array(f_ma_me_lst).max()
@@ -136,7 +142,6 @@ class PartnerSelfAnticipationPlanner(object):
         f_o_you_max = np.array(f_o_you_lst).max()
         f_s_me_max = np.array(f_s_me_lst).max()
         f_s_you_max = np.array(f_s_you_lst).max()
-        model_cal_ra_theta = ra_theta_lst[np.array(f_ra_lst).argmax()]
 
         utility_color_map(utility, self.num_grid_x, self.num_grid_y, "utility")
 
@@ -144,7 +149,7 @@ class PartnerSelfAnticipationPlanner(object):
         return predicted_p_me, \
             f_ma_me_max, f_ma_you_max, f_mv_me_max, f_mv_you_max, f_mw_me_max,\
             f_mw_you_max, f_ra_max, f_rd_max, f_rv_max, \
-            f_o_me_max, f_o_you_max, f_s_me_max, f_s_you_max, model_cal_ra_theta
+            f_o_me_max, f_o_you_max, f_s_me_max, f_s_you_max
 
     def linear_extrapolation(self, trajectory):
         """位置の履歴から次の時刻の位置を等速直線運動で予測する
@@ -177,37 +182,35 @@ class PartnerSelfAnticipationPlanner(object):
         return grid_points
 
     def calculation_utility(
-            self, prev_s_me, s_me, next_s_me,
-            prev_s_you, s_you, next_s_you, subgoal, obstacle):
-
+            self, states_me, states_you, subgoal, obstacle):
 
         dto_me = DistanceToObstacle(a=20.0, b=0.40)
         dto_you = DistanceToObstacle(a=20.0, b=0.40)
-        mts_me = MovingTowardSubgoals(a=0.45, b=1.00, c=0.0)
-        mts_you = MovingTowardSubgoals(a=0.45, b=1.00, c=0.0)
-        rv = RelativeVelocity(a=0.20, b=1.20, c=0.0)
-        rd = RelativeDistance(a=0.25, b=2.00, c=0.75)
-        ra = RelativeAngle(a=0.08, b=3.00, c=self.relative_a)
-        v_me = Velocity(a=0.30, b=1.6, c=1.10)
-        v_you = Velocity(a=0.30, b=1.6, c=1.10)
-        a_me = Acceleration(a=0.20, b=1.0, c=0.0)
-        a_you = Acceleration(a=0.20, b=1.0, c=0.0)
-        av_me = AngularVelocity(a=0.7, b=4.4, c=0.0)
-        av_you = AngularVelocity(a=0.7, b=4.4, c=0.0)
+        mts_me = MovingTowardSubgoals(a=0.45, b=1.00, c=0.0, d_t=0.03)
+        mts_you = MovingTowardSubgoals(a=0.45, b=1.00, c=0.0, d_t=0.03)
+        rv = RelativeVelocity(a=0.20, b=1.20, c=0.0, d_t=0.03)
+        rd = RelativeDistance(a=0.25, b=2.00, c=0.75, d_t=0.03)
+        ra = RelativeAngle(a=0.08, b=3.00, c=self.relative_a, d_t=0.03)
+        v_me = Velocity(a=0.30, b=1.6, c=1.10, d_t=0.03)
+        v_you = Velocity(a=0.30, b=1.6, c=1.10, d_t=0.03)
+        a_me = Acceleration(a=0.20, b=1.0, c=0.0, d_t=0.03)
+        a_you = Acceleration(a=0.20, b=1.0, c=0.0, d_t=0.03)
+        av_me = AngularVelocity(a=0.7, b=4.4, c=0.0, d_t=0.03)
+        av_you = AngularVelocity(a=0.7, b=4.4, c=0.0, d_t=0.03)
 
-        f_o_me = dto_me.calculation_f_o_utility(s_me, obstacle)
-        f_o_you = dto_you.calculation_f_o_utility(s_you, obstacle)
-        f_s_me = mts_me.calculation_f_s_utility(s_me, next_s_me, subgoal)
-        f_s_you = mts_you.calculation_f_s_utility(s_you, next_s_you, subgoal)
-        f_rv = rv.calculation_f_rv_utility(s_me, s_you, self.d_t)
-        f_rd = rd.calculation_f_rd_utility(s_me, s_you)
-        f_ra, ra_theta = ra.calculation_f_ra_utility(s_me, s_you)
-        f_mv_me = v_me.calculation_f_mv_utility(s_me, next_s_me, self.d_t)
-        f_mv_you = v_you.calculation_f_mv_utility(s_you, next_s_you, self.d_t)
-        f_ma_me = a_me.calculation_f_ma_utility(prev_s_me, s_me, next_s_me, self.d_t)
-        f_ma_you = a_you.calculation_f_ma_utility(prev_s_you, s_you, next_s_you, self.d_t)
-        f_mw_me = av_me.calculation_f_mw_utility(prev_s_me, s_me, next_s_me, self.d_t)
-        f_mw_you = av_you.calculation_f_mw_utility(prev_s_you, s_you, next_s_you, self.d_t)
+        f_o_me = dto_me.score(states_me, None, subgoal, obstacle)
+        f_o_you = dto_you.score(states_me, None, subgoal, obstacle)
+        f_s_me = mts_me.score(states_me, None, subgoal, obstacle)
+        f_s_you = mts_you.score(states_you, None, subgoal, obstacle)
+        f_rv = rv.score(states_me, states_you, subgoal, obstacle)
+        f_rd = rd.score(states_me, states_you, subgoal, obstacle)
+        f_ra = ra.score(states_me, states_you, subgoal, obstacle)
+        f_mv_me = v_me.score(states_me, None, None, None)
+        f_mv_you = v_you.score(states_you, None, None, None)
+        f_ma_me = a_me.score(states_me, None, None, None)
+        f_ma_you = a_you.score(states_you, None, None, None)
+        f_mw_me = av_me.score(states_me, None, None, None)
+        f_mw_you = av_you.score(states_you, None, None, None)
 
         utility_me = (self.k_o * f_o_me + self.k_s * f_s_me +
                       self.k_rv * f_rv + self.k_rd * f_rd + self.k_ra * f_ra +
@@ -216,7 +219,7 @@ class PartnerSelfAnticipationPlanner(object):
                        self.k_rv * f_rv + self.k_rd * f_rd +
                        self.k_ra * f_ra + self.k_ma * f_ma_you + self.k_mv * f_mv_you + self.k_mw * f_mw_you)
         return utility_me, utility_you, f_ma_me, f_ma_you, f_mv_me, f_mv_you, \
-            f_mw_me, f_mw_you, f_ra, f_rd, f_rv, f_o_me, f_o_you, f_s_me, f_s_you, ra_theta
+            f_mw_me, f_mw_you, f_ra, f_rd, f_rv, f_o_me, f_o_you, f_s_me, f_s_you
 
 
 if __name__ == '__main__':
