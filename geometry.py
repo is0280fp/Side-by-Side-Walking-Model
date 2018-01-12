@@ -34,7 +34,9 @@ def motion_velocity(p, next_p, d_t):
         """eq. (1)
         出力：スカラー、速さ
         """
-        m_v = np.sqrt(np.sum((next_p - p) ** 2)) / d_t
+        sq_distance = np.sum((next_p - p) ** 2)
+        assert np.all(sq_distance >= 0)
+        m_v = np.sqrt(sq_distance) / d_t
         return m_v
 
 

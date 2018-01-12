@@ -11,7 +11,7 @@ import factors
 
 class TestDistanceToObstacle(unittest.TestCase):
     def setUp(self):
-        self.factor = factors.DistanceToObstacle(a=20.0, b=0.40, c=0, d_t=1)
+        self.factor = factors.DistanceToObstacle(a=20.0, b=0.40)
 
     def check_distance_to_obstacle(self, obstacle, p, expected):
         p = np.array(p)

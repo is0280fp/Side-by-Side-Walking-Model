@@ -9,12 +9,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def utility_changing_graph(f, name):
+def utility_changing_graph(f, name, y_label, x_label):
     plt.plot(f, "r.-")
 #    plt.xticks(np.arange(0, step, 1))   # stepとはステップ数の合計
 #    plt.yticks(np.arange(0, 1, 0.2))
     plt.grid()
     plt.title(name)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.show()
+
+
+def vector_graph(x, y, u, v):
+    plt.quiver(x, y, u, v, angles='xy', scale_units='xy', scale=1)
+#    x, yはベクトルの始点, u, vはベクトルの成分
+    plt.grid()
+    plt.draw()
     plt.show()
 
 
