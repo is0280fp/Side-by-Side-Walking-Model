@@ -9,11 +9,13 @@ import copy
 import matplotlib.pyplot as plt
 import numpy as np
 import partner_and_self_anticipation_planner
+from scraper import UtilityScraper
 from agents_ver3 import Robot
 from states import AgentState
 from agents_ver3 import Human
 from environment import EnvironmentState
 from utility_visualization import utility_changing_graph
+from utility_visualization import vector_graph
 
 
 class Logger(object):
@@ -31,7 +33,7 @@ class Logger(object):
     def display(self):
         l_p = np.array([s.p for s in self.l_s])
         f_p = np.array([s.p for s in self.f_s])
-        relative_distance = np.sqrt((l_p - f_p) * 2)
+#        relative_distance = np.sqrt((l_p - f_p) * 2)
         plt.plot(*l_p.T, "-o", label="Robot")
         plt.plot(*f_p.T, "*", label="Human")
         plt.plot(-0.2, 3.0, "^", label="Goal")
@@ -114,7 +116,7 @@ if __name__ == '__main__':
     k_mv = 0.0
     k_mw = 0.0
     k_pt = 0  # 新しいfactor
-    length_step = 5
+    length_step = 2
     relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
 
@@ -123,8 +125,7 @@ if __name__ == '__main__':
     initial_state_b = trajectory_b[-1]
 #    aさんはwalking_modelに基づいて，経路計画する
 #   bさんはutilityに基づいて，経路計画する
-    scraper = partner_and_self_anticipation_planner.UtilityScraper(
-            num_grid_x, num_grid_y)
+    scraper = UtilityScraper(num_grid_x, num_grid_y)
 
     planner_a = \
         partner_and_self_anticipation_planner.PartnerSelfAnticipationPlanner(
@@ -160,8 +161,24 @@ if __name__ == '__main__':
         print("step", n)
         logger.display()
         logger.print()
-        print("==================================================================================")
         n += 1  # インクリメント
 
-        for name, lst in scraper.get_utility_maps().items():
-            utility_changing_graph(lst.max((1, 2, 3, 4)), name)
+        for factor_name, factor_lst in scraper.get_factors_maps().items():
+            pass
+        factor_lst = factor_lst.reshape(len(factor_lst), -1)
+
+        for utility_name, utility_lst in scraper.get_utility_maps().items():
+            utility_changing_graph(utility_lst.max((1, 2, 3, 4)),
+                                   utility_name, "score", "step")
+#            utility_lstのargmaxを求めるとき、argmax()の引数に軸のタプルを指定できないため、
+#            utility_lstとfactor_lstを二次元配列にした
+#            range(len(factor_lst))はfactorの種類数
+#            utility_lst.reshape(len(utility_lst), -1).argmax(1)])はargmaxの場所
+            utility_changing_graph(
+                    factor_lst[range(len(factor_lst)),
+                               utility_lst.reshape(len(utility_lst), -1).argmax(1)], "actual_"+utility_name, "", "step")
+
+        for value_name, value_lst in scraper.get_values_maps().items():
+            pass
+        value_lst = value_lst.reshape(len(value_lst), -1)
+    print("==================================================================================")
