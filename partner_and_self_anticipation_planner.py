@@ -6,12 +6,11 @@ Created on Thu Jul 20 18:06:45 2017
 
 """
 
-from collections import defaultdict
 import numpy as np
 import itertools
 from agents_ver3 import AgentState
 from states import States
-from environment import EnvironmentState
+from scraper import UtilityScraper
 from utility_visualization import utility_color_map
 from factors import DistanceToObstacle
 from factors import MovingTowardSubgoals
@@ -86,8 +85,10 @@ class PartnerSelfAnticipationPlanner(object):
         for next_p_you, next_p_me in each_other_p:
             next_d_me = next_p_me - s_me.p
             next_d_you = next_p_you - s_you.p
-            states_me = States(prev_s_me, s_me, AgentState(next_p_me, next_d_me))
-            states_you = States(prev_s_you, s_you, AgentState(next_p_you, next_d_you))
+            states_me = States(
+                    prev_s_me, s_me, AgentState(next_p_me, next_d_me))
+            states_you = States(
+                    prev_s_you, s_you, AgentState(next_p_you, next_d_you))
             u_me, u_you = self.calculation_utility(
                     states_me, states_you, subgoal, obstacle)
             utility_me.append(u_me)
@@ -112,7 +113,7 @@ class PartnerSelfAnticipationPlanner(object):
         """位置の履歴から次の時刻の位置を等速直線運動で予測する
 
         Args　:
-            trajectory:ｎｕｍ＿grid＿x
+            trajectory:num_grid_x
                 位置の記録
         Returns:
             next_p(ndarray):
@@ -141,19 +142,19 @@ class PartnerSelfAnticipationPlanner(object):
     def calculation_utility(
             self, states_me, states_you, subgoal, obstacle):
 
-        dto_me = DistanceToObstacle(a=20.0, b=0.40)
-        dto_you = DistanceToObstacle(a=20.0, b=0.40)
-        mts_me = MovingTowardSubgoals(a=0.45, b=1.00, c=0.0, d_t=0.03)
-        mts_you = MovingTowardSubgoals(a=0.45, b=1.00, c=0.0, d_t=0.03)
-        rv = RelativeVelocity(a=0.20, b=1.20, c=0.0, d_t=0.03)
-        rd = RelativeDistance(a=0.25, b=2.00, c=0.75, d_t=0.03)
-        ra = RelativeAngle(a=0.08, b=3.00, c=self.relative_a, d_t=0.03)
-        v_me = Velocity(a=0.30, b=1.6, c=1.10, d_t=0.03)
-        v_you = Velocity(a=0.30, b=1.6, c=1.10, d_t=0.03)
-        a_me = Acceleration(a=0.20, b=1.0, c=0.0, d_t=0.03)
-        a_you = Acceleration(a=0.20, b=1.0, c=0.0, d_t=0.03)
-        av_me = AngularVelocity(a=0.7, b=4.4, c=0.0, d_t=0.03)
-        av_you = AngularVelocity(a=0.7, b=4.4, c=0.0, d_t=0.03)
+        dto_me = DistanceToObstacle(self.scraper, a=20.0, b=0.40)
+        dto_you = DistanceToObstacle(self.scraper, a=20.0, b=0.40)
+        mts_me = MovingTowardSubgoals(self.scraper, a=0.45, b=1.00, c=0.0, d_t=0.03)
+        mts_you = MovingTowardSubgoals(self.scraper, a=0.45, b=1.00, c=0.0, d_t=0.03)
+        rv = RelativeVelocity(self.scraper, a=0.20, b=1.20, c=0.0, d_t=0.03)
+        rd = RelativeDistance(self.scraper, a=0.25, b=2.00, c=0.75, d_t=0.03)
+        ra = RelativeAngle(self.scraper, a=0.08, b=3.00, c=self.relative_a, d_t=0.03)
+        v_me = Velocity(self.scraper, a=0.30, b=1.6, c=1.10, d_t=0.03)
+        v_you = Velocity(self.scraper, a=0.30, b=1.6, c=1.10, d_t=0.03)
+        a_me = Acceleration(self.scraper, a=0.20, b=1.0, c=0.0, d_t=0.03)
+        a_you = Acceleration(self.scraper, a=0.20, b=1.0, c=0.0, d_t=0.03)
+        av_me = AngularVelocity(self.scraper, a=0.7, b=4.4, c=0.0, d_t=0.03)
+        av_you = AngularVelocity(self.scraper, a=0.7, b=4.4, c=0.0, d_t=0.03)
 
         f_o_me = dto_me.score(states_me, None, subgoal, obstacle)
         f_o_you = dto_you.score(states_me, None, subgoal, obstacle)
@@ -169,9 +170,26 @@ class PartnerSelfAnticipationPlanner(object):
         f_mw_me = av_me.score(states_me, None, None, None)
         f_mw_you = av_you.score(states_you, None, None, None)
 
+        o_me_dis = dto_me.factor(states_me, None, subgoal, obstacle)
+        o_you_dis = dto_you.factor(states_me, None, subgoal, obstacle)
+        s_me_theta = mts_me.factor(states_me, None, subgoal, obstacle)
+        s_you_theta = mts_you.factor(states_you, None, subgoal, obstacle)
+        rv_vec = rv.factor(states_me, states_you, subgoal, obstacle)
+        rd_dis = rd.factor(states_me, states_you, subgoal, obstacle)
+        ra_theta = ra.factor(states_me, states_you, subgoal, obstacle)
+        mv_me_vec = v_me.factor(states_me, None, None, None)
+        mv_you_vec = v_you.factor(states_you, None, None, None)
+        ma_me_gal = a_me.factor(states_me, None, None, None)
+        ma_you_gal = a_you.factor(states_you, None, None, None)
+        mw_me_rad = av_me.factor(states_me, None, None, None)
+        mw_you_rad = av_you.factor(states_you, None, None, None)
+
         self.scraper.add(f_ma_me, f_ma_you, f_mv_me, f_mv_you,
                          f_mw_me, f_mw_you, f_ra, f_rd, f_rv,
-                         f_o_me, f_o_you, f_s_me, f_s_you)
+                         f_o_me, f_o_you, f_s_me, f_s_you,
+                         o_me_dis, o_you_dis, s_me_theta, s_you_theta, rv_vec,
+                         rd_dis, ra_theta, mv_me_vec, mv_you_vec, ma_me_gal,
+                         ma_you_gal, mw_me_rad, mw_you_rad)
 
         utility_me = (self.k_o * f_o_me + self.k_s * f_s_me +
                       self.k_rv * f_rv + self.k_rd * f_rd + self.k_ra * f_ra +
@@ -180,35 +198,6 @@ class PartnerSelfAnticipationPlanner(object):
                        self.k_rv * f_rv + self.k_rd * f_rd +
                        self.k_ra * f_ra + self.k_ma * f_ma_you + self.k_mv * f_mv_you + self.k_mw * f_mw_you)
         return utility_me, utility_you
-
-
-class UtilityScraper(object):
-    def __init__(self, num_grid_x, num_grid_y):
-        self.num_grid_x = num_grid_x
-        self.num_grid_y = num_grid_y
-        self.utilities = defaultdict(list)
-
-    def add(self, f_ma_me, f_ma_you, f_mv_me, f_mv_you, \
-            f_mw_me, f_mw_you, f_ra, f_rd, f_rv, f_o_me, f_o_you, f_s_me, f_s_you):
-        self.utilities["f_o_me"].append(f_o_me)
-        self.utilities["f_o_you"].append(f_o_you)
-        self.utilities["f_s_me"].append(f_s_me)
-        self.utilities["f_s_you"].append(f_s_you)
-        self.utilities["f_rv"].append(f_rv)
-        self.utilities["f_rd"].append(f_rd)
-        self.utilities["f_ra"].append(f_ra)
-        self.utilities["f_mv_me"].append(f_mv_me)
-        self.utilities["f_mv_you"].append(f_mv_you)
-        self.utilities["f_ma_me"].append(f_ma_me)
-        self.utilities["f_ma_you"].append(f_ma_you)
-        self.utilities["f_mw_me"].append(f_mw_me)
-        self.utilities["f_mw_you"].append(f_mw_you)
-
-    def get_utility_maps(self):
-        maps = {}
-        for name, lst in self.utilities.items():
-            maps[name] = np.reshape(lst, (-1, self.num_grid_y, self.num_grid_x, self.num_grid_y, self.num_grid_x))
-        return maps
 
 
 if __name__ == '__main__':

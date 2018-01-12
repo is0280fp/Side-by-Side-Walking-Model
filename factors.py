@@ -7,6 +7,7 @@ Created on Tue Oct 31 23:46:32 2017
 
 import numpy as np
 import matplotlib.pyplot as plt
+from scraper import UtilityScraper
 from factor import BaseFactor
 from geometry import absolute_angle
 from geometry import revision_theta
@@ -54,6 +55,9 @@ class RelativeAngle(BaseFactor):
         theta_yoko = absolute_angle(p_you, p_me)
         theta = theta_yoko - theta_mae
         r_a = revision_theta(theta)
+        v_yoko = p_me - p_you
+        UtilityScraper.add_ra_values(self.scraper,
+                                     p_me, p_you, d_you, v_yoko, theta_mae, theta_yoko, theta, r_a)
         return np.abs(r_a)
 
 
@@ -105,9 +109,10 @@ class MovingTowardSubgoals(BaseFactor):
 
 
 class DistanceToObstacle(BaseFactor):
-    def __init__(self, a, b):
+    def __init__(self, scraper, a, b):
         self.a = a
         self.b = b
+        self.scraper = scraper
 
     def factor(self, states_me, states_you=None, subgoal=None, obstacle=None):
         p = states_me.s.p
