@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def utility_changing_graph(f, name, y_label, x_label):
+def changing_graph_per_step(f, name, y_label, x_label):
     plt.plot(f, "r.-")
 #    plt.xticks(np.arange(0, step, 1))   # stepとはステップ数の合計
 #    plt.yticks(np.arange(0, 1, 0.2))
@@ -21,8 +21,11 @@ def utility_changing_graph(f, name, y_label, x_label):
 
 
 def vector_graph(x, y, u, v):
-    plt.quiver(x, y, u, v, angles='xy', scale_units='xy', scale=1)
+    plt.quiver(x, y, u, v, np.arctan2(v, u),
+        angles='xy', scale_units='xy', scale=1)
 #    x, yはベクトルの始点, u, vはベクトルの成分
+    plt.xlim([-2, 2])
+    plt.ylim([-2, 2])
     plt.grid()
     plt.draw()
     plt.show()
@@ -57,4 +60,4 @@ if __name__ == '__main__':
                  [1.03],
                  [1.06],
                  [1.09]])
-    utility_changing_graph(f, "utility")
+    changing_graph_per_step(f, "utility")

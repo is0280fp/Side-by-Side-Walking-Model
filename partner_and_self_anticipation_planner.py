@@ -176,13 +176,16 @@ class PartnerSelfAnticipationPlanner(object):
         s_you_theta = mts_you.factor(states_you, None, subgoal, obstacle)
         rv_vec = rv.factor(states_me, states_you, subgoal, obstacle)
         rd_dis = rd.factor(states_me, states_you, subgoal, obstacle)
-        ra_theta = ra.factor(states_me, states_you, subgoal, obstacle)
+        ra_theta = ra.factor(
+                states_me, states_you, subgoal, obstacle)
         mv_me_vec = v_me.factor(states_me, None, None, None)
         mv_you_vec = v_you.factor(states_you, None, None, None)
         ma_me_gal = a_me.factor(states_me, None, None, None)
         ma_you_gal = a_you.factor(states_you, None, None, None)
         mw_me_rad = av_me.factor(states_me, None, None, None)
         mw_you_rad = av_you.factor(states_you, None, None, None)
+
+        ra.pass_values()
 
         self.scraper.add(f_ma_me, f_ma_you, f_mv_me, f_mv_you,
                          f_mw_me, f_mw_you, f_ra, f_rd, f_rv,
