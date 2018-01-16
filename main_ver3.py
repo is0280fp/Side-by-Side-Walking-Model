@@ -14,7 +14,7 @@ from agents_ver3 import Robot
 from states import AgentState
 from agents_ver3 import Human
 from environment import EnvironmentState
-from utility_visualization import utility_changing_graph
+from utility_visualization import changing_graph_per_step
 from utility_visualization import vector_graph
 
 
@@ -83,7 +83,7 @@ def make_trajectory(ps):
 
 if __name__ == '__main__':
     # 表描画
-#    実測値
+    #    実測値
     trajectory_a = make_trajectory([
             [0.73578850047, 0.59751806081],
             [0.74111587829, 0.537682491898],
@@ -102,8 +102,8 @@ if __name__ == '__main__':
     obstacles = []
 
     d_t = 0.1
-    num_grid_x = 10
-    num_grid_y = 10
+    num_grid_x = 5
+    num_grid_y = 5
     search_range_x = 0.2
     search_range_y = 0.2
 
@@ -116,9 +116,14 @@ if __name__ == '__main__':
     k_mv = 0.0
     k_mw = 0.0
     k_pt = 0  # 新しいfactor
-    length_step = 2
+    length_step = 3
     relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
+
+    value_p_me = []
+    value_p_you = []
+    value_v_mae = []
+    value_v_yoko = []
 
     n = 0
     initial_state_a = trajectory_a[-1]
@@ -163,22 +168,50 @@ if __name__ == '__main__':
         logger.print()
         n += 1  # インクリメント
 
-        for factor_name, factor_lst in scraper.get_factors_maps().items():
-            pass
-        factor_lst = factor_lst.reshape(len(factor_lst), -1)
+        for utility, factor in zip(
+                scraper.get_utility_maps().items(),
+                scraper.get_factors_maps().items()):
+            utility_name = utility[0]
+            utility_lst = utility[1]
+            factor_name = factor[0]
+            factor_lst = factor[1]
 
-        for utility_name, utility_lst in scraper.get_utility_maps().items():
-            utility_changing_graph(utility_lst.max((1, 2, 3, 4)),
-                                   utility_name, "score", "step")
+            num_step = len(factor_lst)
+            factor_lst = factor_lst.reshape(num_step, -1)
+
 #            utility_lstのargmaxを求めるとき、argmax()の引数に軸のタプルを指定できないため、
 #            utility_lstとfactor_lstを二次元配列にした
 #            range(len(factor_lst))はfactorの種類数
 #            utility_lst.reshape(len(utility_lst), -1).argmax(1)])はargmaxの場所
-            utility_changing_graph(
-                    factor_lst[range(len(factor_lst)),
-                               utility_lst.reshape(len(utility_lst), -1).argmax(1)], "actual_"+utility_name, "", "step")
+
+            max_utility_lst = utility_lst.max((1, 2, 3, 4))
+            changing_graph_per_step(
+                max_utility_lst, utility_name,
+                "score", "step")
+
+            argmax_utility_lst = \
+                utility_lst.reshape(len(utility_lst), -1).argmax(1)
+
+            changing_graph_per_step(
+                factor_lst[range(num_step), argmax_utility_lst],
+                "actual_"+utility_name, "", "step")
 
         for value_name, value_lst in scraper.get_values_maps().items():
-            pass
-        value_lst = value_lst.reshape(len(value_lst), -1)
+            value_lst = value_lst.reshape(2, (num_grid_x * num_grid_y)**2 * num_step)
+            value_lst = value_lst[range(2),
+                scraper.get_utility_maps()["f_ra"].argmax()]
+            if "p_me" in value_name:
+                value_p_me.append(value_lst)
+            elif "p_you" in value_name:
+                value_p_you.append(value_lst)
+            elif "v_mae" in value_name:
+                value_v_mae.append(value_lst)
+            elif "v_yoko" in value_name:
+                value_v_yoko.append(value_lst)
+
+        for vec_start_point, d_you, v_yoko in zip(
+                value_p_you, value_v_mae, value_v_yoko):
+            x = vec_start_point[0]
+            y = vec_start_point[1]
+            vector_graph(x, y, d_you, v_yoko)
     print("==================================================================================")

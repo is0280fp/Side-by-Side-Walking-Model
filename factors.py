@@ -7,7 +7,6 @@ Created on Tue Oct 31 23:46:32 2017
 
 import numpy as np
 import matplotlib.pyplot as plt
-from scraper import UtilityScraper
 from factor import BaseFactor
 from geometry import absolute_angle
 from geometry import revision_theta
@@ -50,15 +49,21 @@ class RelativeAngle(BaseFactor):
         """
         unit test required
         """
+#        データ可視化のためのローカル変数
+        self.pass_p_me = p_me
+        self.pass_p_you = p_you
+        self.pass_d_you = d_you
+        self.v_yoko = p_me - p_you
         # youの進行方向の絶対角度
         theta_mae = np.arctan2(d_you[1], d_you[0])
         theta_yoko = absolute_angle(p_you, p_me)
         theta = theta_yoko - theta_mae
         r_a = revision_theta(theta)
-        v_yoko = p_me - p_you
-        UtilityScraper.add_ra_values(self.scraper,
-                                     p_me, p_you, d_you, v_yoko, theta_mae, theta_yoko, theta, r_a)
         return np.abs(r_a)
+
+    def pass_values(self):
+        self.scraper.add_ra_values(self.pass_p_me, self.pass_p_you,
+                                   self.pass_d_you, self.v_yoko)
 
 
 class Velocity(BaseFactor):
