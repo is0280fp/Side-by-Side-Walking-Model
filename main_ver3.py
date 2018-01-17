@@ -55,12 +55,12 @@ class Logger(object):
         plt.draw()
 
     def print(self):
-        print("a_s")
+        print("Robot_s")
         print("\n".join(
                 ["{}: {}".format(i, s) for i, s in enumerate(logger.l_s)]))
 #  print("\n".join([str(i) + ": " + str(s) for i, s in enumerate(logger.l_s)]))
         print()
-        print("b_s")
+        print("Human_s")
         print("\n".join(
                 ["{}: {}".format(i, s) for i, s in enumerate(logger.f_s)]))
         print()
@@ -124,6 +124,10 @@ if __name__ == '__main__':
     value_p_you = []
     value_v_mae = []
     value_v_yoko = []
+    value_theta_mae = []
+    value_theta_yoko = []
+    value_theta = []
+    value_r_a = []
 
     n = 0
     initial_state_a = trajectory_a[-1]
@@ -185,20 +189,21 @@ if __name__ == '__main__':
 #            utility_lst.reshape(len(utility_lst), -1).argmax(1)])はargmaxの場所
 
             max_utility_lst = utility_lst.max((1, 2, 3, 4))
-            changing_graph_per_step(
-                max_utility_lst, utility_name,
-                "score", "step")
+#            changing_graph_per_step(
+#                max_utility_lst, utility_name,
+#                "score", "step")
 
             argmax_utility_lst = \
                 utility_lst.reshape(len(utility_lst), -1).argmax(1)
 
-            changing_graph_per_step(
-                factor_lst[range(num_step), argmax_utility_lst],
-                "actual_"+utility_name, "", "step")
+#            changing_graph_per_step(
+#                factor_lst[range(num_step), argmax_utility_lst],
+#                "actual_"+utility_name, "", "step")
 
         for value_name, value_lst in scraper.get_values_maps().items():
-            value_lst = value_lst.reshape(2, (num_grid_x * num_grid_y)**2 * num_step)
-            value_lst = value_lst[range(2),
+            value_lst_shape = value_lst.shape[-1]
+            value_lst = value_lst.reshape(value_lst_shape, (num_grid_x * num_grid_y)**2 * num_step)
+            value_lst = value_lst[range(value_lst_shape),
                 scraper.get_utility_maps()["f_ra"].argmax()]
             if "p_me" in value_name:
                 value_p_me.append(value_lst)
@@ -208,10 +213,50 @@ if __name__ == '__main__':
                 value_v_mae.append(value_lst)
             elif "v_yoko" in value_name:
                 value_v_yoko.append(value_lst)
+            elif "theta_mae" in value_name:
+                value_theta_mae.append(value_lst)
+            elif "theta_yoko" in value_name:
+                value_theta_yoko.append(value_lst)
+            elif "theta" in value_name:
+                value_theta.append(value_lst)
+            elif "r_a" in value_name:
+                value_r_a.append(value_lst)
 
         for vec_start_point, d_you, v_yoko in zip(
                 value_p_you, value_v_mae, value_v_yoko):
             x = vec_start_point[0]
             y = vec_start_point[1]
-            vector_graph(x, y, d_you, v_yoko)
+            u = d_you[0], v_yoko[0]
+            v = d_you[1], v_yoko[1]
+            vector_graph(x, y, u, v)
+            print("p_me")
+            print(np.array(value_p_me))
+            print("")
+            print("p_you")
+            print(np.array(value_p_you))
+            print("")
+#            print("d_you")
+#            print(np.array(d_you))
+#            print("")
+#            print("v_yoko")
+#            print(np.array(v_yoko))
+#            print("")
+#            print("theta_mae")
+#            print(np.array(value_theta_mae))
+#            print("")
+#            print(np.array(np.rad2deg(value_theta_mae)))
+#            print("")
+#            print("theta_yoko")
+#            print(np.array(value_theta_yoko))
+#            print("")
+#            print(np.array(np.rad2deg(value_theta_yoko)))
+#            print("")
+#            print("theta")
+#            print(np.array(value_theta))
+#            print("")
+            print("r_a")
+            print(np.array(value_r_a))
+            print("")
+            print(np.array(np.rad2deg(np.abs(value_r_a))))
+            print("--------------------------------------------------------------------------")
     print("==================================================================================")

@@ -59,11 +59,17 @@ class RelativeAngle(BaseFactor):
         theta_yoko = absolute_angle(p_you, p_me)
         theta = theta_yoko - theta_mae
         r_a = revision_theta(theta)
+        self.pass_theta_mae = theta_mae
+        self.pass_theta_yoko = theta_yoko
+        self.pass_theta = theta
+        self.pass_r_a = r_a
         return np.abs(r_a)
 
     def pass_values(self):
         self.scraper.add_ra_values(self.pass_p_me, self.pass_p_you,
-                                   self.pass_d_you, self.v_yoko)
+            self.pass_d_you, self.v_yoko,
+            self.pass_theta_mae, self.pass_theta_yoko,
+            self.pass_theta, self.pass_r_a)
 
 
 class Velocity(BaseFactor):

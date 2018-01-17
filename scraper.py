@@ -44,15 +44,16 @@ class UtilityScraper(object):
         self.factors["s_me_theta"].append(s_me_theta)
         self.factors["s_you_theta"].append(s_you_theta)
 
-    def add_ra_values(self, p_me, p_you, d_you, v_yoko):
+    def add_ra_values(self, p_me, p_you, d_you, v_yoko,
+            theta_mae, theta_yoko, theta, r_a):
         self.ra_values["p_me"].append(p_me)
         self.ra_values["p_you"].append(p_you)
         self.ra_values["v_mae"].append(d_you)
         self.ra_values["v_yoko"].append(v_yoko)
-#        self.ra_values["theta_mae"].append(theta_mae)
-#        self.ra_values["theta_yoko"].append(theta_yoko)
-#        self.ra_values["theta"].append(theta)
-#        self.ra_values["r_a"].append(r_a)
+        self.ra_values["theta_mae"].append(theta_mae)
+        self.ra_values["theta_yoko"].append(theta_yoko)
+        self.ra_values["theta"].append(theta)
+        self.ra_values["r_a"].append(r_a)
 
     def get_utility_maps(self):
         maps = {}
@@ -85,7 +86,13 @@ class UtilityScraper(object):
             lst = np.array(lst)
             num_step = len(lst) // (self.num_grid_y * self.num_grid_x *
                     self.num_grid_y * self.num_grid_x)
-            values_maps[name] = lst.reshape(
+            size = lst.shape[-1]
+            if lst.ndim > 1:
+                values_maps[name] = lst.reshape(
                     num_step, self.num_grid_y, self.num_grid_x,
-                    self.num_grid_y, self.num_grid_x, len(lst[0]))
+                    self.num_grid_y, self.num_grid_x, size)
+            else:
+                values_maps[name] = lst.reshape(
+                    num_step, self.num_grid_y, self.num_grid_x,
+                    self.num_grid_y, self.num_grid_x, 1)
         return values_maps
