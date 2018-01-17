@@ -27,6 +27,8 @@ def vector_graph(x, y, u, v):
     plt.xlim([-2, 2])
     plt.ylim([-2, 2])
     plt.grid()
+    plt.xlabel("axis x (m)")
+    plt.ylabel("axis y (m)")
     plt.draw()
     plt.show()
 
