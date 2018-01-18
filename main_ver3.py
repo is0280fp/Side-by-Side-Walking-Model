@@ -26,9 +26,11 @@ class Logger(object):
 
     def log_leader(self, s):
         self.l_s.append(copy.copy(s))
+        return self.l_s
 
     def log_follower(self, s):
         self.f_s.append(copy.copy(s))
+        return self.f_s
 
     def display(self):
         l_p = np.array([s.p for s in self.l_s])
@@ -109,14 +111,14 @@ if __name__ == '__main__':
 
     k_o = 0
     k_rv = 0.0
-    k_rd = 0
+    k_rd = 0.2
     k_ra = 0.5  # ra = relative_angle
-    k_s = 0.0
+    k_s = 0.5
     k_ma = 0.0
     k_mv = 0.0
     k_mw = 0.0
     k_pt = 0  # 新しいfactor
-    length_step = 3
+    length_step = 5
     relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
 
@@ -226,8 +228,12 @@ if __name__ == '__main__':
                 value_p_you, value_v_mae, value_v_yoko):
             x = vec_start_point[0]
             y = vec_start_point[1]
-            u = d_you[0], v_yoko[0]
-            v = d_you[1], v_yoko[1]
+            normalized_d_you = d_you / np.linalg.norm(d_you)
+            normalized_v_yoko = v_yoko / np.linalg.norm(v_yoko)
+            normalized_d_you = normalized_d_you * 0.5
+            normalized_v_yoko = normalized_v_yoko * 0.5
+            u = normalized_d_you[0], normalized_v_yoko[0]
+            v = normalized_d_you[1], normalized_v_yoko[1]
             vector_graph(x, y, u, v)
             print("p_me")
             print(np.array(value_p_me))
@@ -235,12 +241,12 @@ if __name__ == '__main__':
             print("p_you")
             print(np.array(value_p_you))
             print("")
-#            print("d_you")
-#            print(np.array(d_you))
-#            print("")
-#            print("v_yoko")
-#            print(np.array(v_yoko))
-#            print("")
+            print("d_you")
+            print(np.array(d_you))
+            print("")
+            print("v_yoko")
+            print(np.array(v_yoko))
+            print("")
 #            print("theta_mae")
 #            print(np.array(value_theta_mae))
 #            print("")
@@ -258,5 +264,5 @@ if __name__ == '__main__':
             print(np.array(value_r_a))
             print("")
             print(np.array(np.rad2deg(np.abs(value_r_a))))
-            print("--------------------------------------------------------------------------")
+            print("**************************************************************************")
     print("==================================================================================")
