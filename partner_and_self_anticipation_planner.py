@@ -95,11 +95,6 @@ class PartnerSelfAnticipationPlanner(object):
             utility_you.append(u_you)
             utility.append(u_me + u_you)
 
-            prev_s_me = s_me
-            s_me = AgentState(next_p_me, next_d_me)
-            prev_s_you = s_you
-            s_you = AgentState(next_p_you, next_d_you)
-
             #                1ステップの全グリッドのutilityを持つリスト
 
         utility = np.array(utility)
