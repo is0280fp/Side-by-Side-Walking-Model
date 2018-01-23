@@ -83,7 +83,7 @@ class AgentHuman(object):
         self.subgoal = subgoals[-1]
         self.d_t = d_t
 
-    def measure(self, s_me, s_you):
+    def measure(self, s_me, s_you=None):
         self.trajectory_me.append(s_me)
         self.trajectory_you.append(s_you)
 
