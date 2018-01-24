@@ -117,7 +117,7 @@ if __name__ == '__main__':
     k_mv = 0.0
     k_mw = 0.0
     k_pt = 0  # 新しいfactor
-    length_step = 30
+    length_step = 55
     relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
 
@@ -234,7 +234,7 @@ if __name__ == '__main__':
             normalized_v_yoko = normalized_v_yoko * 0.5
             u = normalized_d_you[0], normalized_v_yoko[0]
             v = normalized_d_you[1], normalized_v_yoko[1]
-            vector_graph(x, y, u, v)
+#            vector_graph(x, y, u, v)
 #            print("p_me")
 #            print(np.array(value_p_me))
 #            print("")
@@ -247,15 +247,15 @@ if __name__ == '__main__':
 #            print("v_yoko")
 #            print(np.array(v_yoko))
 #            print("")
-            print("theta_mae")
-            print(np.array(value_theta_mae))
-            print("")
-            print(np.array(np.rad2deg(value_theta_mae)))
-            print("")
-            print("theta_yoko")
-            print(np.array(value_theta_yoko))
-            print("")
-            print(np.array(np.rad2deg(value_theta_yoko)))
+#            print("theta_mae")
+#            print(np.array(value_theta_mae))
+#            print("")
+#            print(np.array(np.rad2deg(value_theta_mae)))
+#            print("")
+#            print("theta_yoko")
+#            print(np.array(value_theta_yoko))
+#            print("")
+#            print(np.array(np.rad2deg(value_theta_yoko)))
 #            print("")
 #            print("theta")
 #            print(np.array(value_theta))

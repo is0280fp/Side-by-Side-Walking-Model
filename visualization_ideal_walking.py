@@ -29,7 +29,7 @@ def make_trajectory(ps):
 
 
 if __name__ == '__main__':
-    length_step = 20
+    length_step = 60
     n = 0
     lim = 5
     trajectory_a = make_trajectory([
