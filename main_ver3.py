@@ -87,10 +87,9 @@ if __name__ == '__main__':
     # 表描画
     #    実測値
     trajectory_a = make_trajectory([
-            [0.73578850047, 0.59751806081],
-            [0.74111587829, 0.537682491898],
-            [0.58094249456, 0.431414990608],
-            [0.46679422611, 0.345349506114]
+            [0.98094249456, 0.731414990608],
+            [0.88094249456, 0.631414990608],
+            [0.75264596,  0.55928402]
             ])
     trajectory_b = make_trajectory([
             [1.73578850047, -0.99751806081],
@@ -104,8 +103,8 @@ if __name__ == '__main__':
     obstacles = []
 
     d_t = 0.1
-    num_grid_x = 5
-    num_grid_y = 5
+    num_grid_x = 10
+    num_grid_y = 10
     search_range_x = 0.2
     search_range_y = 0.2
 
@@ -118,7 +117,7 @@ if __name__ == '__main__':
     k_mv = 0.0
     k_mw = 0.0
     k_pt = 0  # 新しいfactor
-    length_step = 5
+    length_step = 30
     relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
 
@@ -204,9 +203,10 @@ if __name__ == '__main__':
 
         for value_name, value_lst in scraper.get_values_maps().items():
             value_lst_shape = value_lst.shape[-1]
-            value_lst = value_lst.reshape(value_lst_shape, (num_grid_x * num_grid_y)**2 * num_step)
+            value_lst = value_lst.reshape(
+                value_lst_shape, (num_grid_x * num_grid_y)**2 * num_step)
             value_lst = value_lst[range(value_lst_shape),
-                scraper.get_utility_maps()["f_ra"].argmax()]
+                                  scraper.get_utility_maps()["f_ra"].argmax()]
             if "p_me" in value_name:
                 value_p_me.append(value_lst)
             elif "p_you" in value_name:
@@ -235,34 +235,34 @@ if __name__ == '__main__':
             u = normalized_d_you[0], normalized_v_yoko[0]
             v = normalized_d_you[1], normalized_v_yoko[1]
             vector_graph(x, y, u, v)
-            print("p_me")
-            print(np.array(value_p_me))
-            print("")
-            print("p_you")
-            print(np.array(value_p_you))
-            print("")
-            print("d_you")
-            print(np.array(d_you))
-            print("")
-            print("v_yoko")
-            print(np.array(v_yoko))
-            print("")
-#            print("theta_mae")
-#            print(np.array(value_theta_mae))
+#            print("p_me")
+#            print(np.array(value_p_me))
 #            print("")
-#            print(np.array(np.rad2deg(value_theta_mae)))
+#            print("p_you")
+#            print(np.array(value_p_you))
 #            print("")
-#            print("theta_yoko")
-#            print(np.array(value_theta_yoko))
+#            print("d_you")
+#            print(np.array(d_you))
 #            print("")
-#            print(np.array(np.rad2deg(value_theta_yoko)))
+#            print("v_yoko")
+#            print(np.array(v_yoko))
+#            print("")
+            print("theta_mae")
+            print(np.array(value_theta_mae))
+            print("")
+            print(np.array(np.rad2deg(value_theta_mae)))
+            print("")
+            print("theta_yoko")
+            print(np.array(value_theta_yoko))
+            print("")
+            print(np.array(np.rad2deg(value_theta_yoko)))
 #            print("")
 #            print("theta")
 #            print(np.array(value_theta))
 #            print("")
-            print("r_a")
-            print(np.array(value_r_a))
-            print("")
-            print(np.array(np.rad2deg(np.abs(value_r_a))))
+#            print("r_a")
+#            print(np.array(value_r_a))
+#            print("")
+#            print(np.array(np.rad2deg(np.abs(value_r_a))))
             print("**************************************************************************")
     print("==================================================================================")

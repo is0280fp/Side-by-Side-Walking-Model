@@ -17,8 +17,8 @@ from geometry import motion_angular_velocity
 
 class RelativeVelocity(BaseFactor):
     def factor(self, states_me, states_you, subgoal=None, obstacle=None):
-        d_me = states_me.s.d
-        d_you = states_you.s.d
+        d_me = states_me.next_s.d
+        d_you = states_you.next_s.d
         return self.relative_velocity(d_me, d_you, self.d_t)
 
     def relative_velocity(self, d_me, d_you, d_t):
@@ -30,8 +30,8 @@ class RelativeVelocity(BaseFactor):
 
 class RelativeDistance(BaseFactor):
     def factor(self, states_me, states_you, subgoal=None, obstacle=None):
-        p_me = states_me.s.p
-        p_you = states_you.s.p
+        p_me = states_me.next_s.p
+        p_you = states_you.next_s.p
         return self.relative_distance(p_me, p_you)
 
     def relative_distance(self, p_me, p_you):
@@ -40,9 +40,9 @@ class RelativeDistance(BaseFactor):
 
 class RelativeAngle(BaseFactor):
     def factor(self, states_me, states_you, subgoal=None, obstacle=None):
-        p_me = states_me.s.p
-        p_you = states_you.s.p
-        d_you = states_you.s.d
+        p_me = states_me.next_s.p
+        p_you = states_you.next_s.p
+        d_you = states_you.next_s.d
         return self.relative_angle(p_me, p_you, d_you)
 
     def relative_angle(self, p_me, p_you, d_you):
@@ -54,11 +54,14 @@ class RelativeAngle(BaseFactor):
         self.pass_p_you = p_you
         self.pass_d_you = d_you
         self.v_yoko = p_me - p_you
+
         # youの進行方向の絶対角度
         theta_mae = np.arctan2(d_you[1], d_you[0])
         theta_yoko = absolute_angle(p_you, p_me)
         theta = theta_yoko - theta_mae
         r_a = revision_theta(theta)
+
+#        データ可視化のためのローカル変数
         self.pass_theta_mae = theta_mae
         self.pass_theta_yoko = theta_yoko
         self.pass_theta = theta
@@ -67,9 +70,9 @@ class RelativeAngle(BaseFactor):
 
     def pass_values(self):
         self.scraper.add_ra_values(self.pass_p_me, self.pass_p_you,
-            self.pass_d_you, self.v_yoko,
-            self.pass_theta_mae, self.pass_theta_yoko,
-            self.pass_theta, self.pass_r_a)
+                                   self.pass_d_you, self.v_yoko,
+                                   self.pass_theta_mae, self.pass_theta_yoko,
+                                   self.pass_theta, self.pass_r_a)
 
 
 class Velocity(BaseFactor):
@@ -90,9 +93,9 @@ class Acceleration(BaseFactor):
         return self.acceleration(prev_p, p, next_p, self.d_t)
 
     def acceleration(self, prev_p, p, next_p, d_t):
-        prev_m_v = motion_velocity(prev_p, p, d_t)
-        motion_v = motion_velocity(p, next_p, d_t)
-        return motion_acceleration(prev_m_v, motion_v)
+        motion_v = motion_velocity(prev_p, p, d_t)
+        next_motion_v = motion_velocity(p, next_p, d_t)
+        return motion_acceleration(motion_v, next_motion_v)
 
 
 class AngularVelocity(BaseFactor):
@@ -126,7 +129,7 @@ class DistanceToObstacle(BaseFactor):
         self.scraper = scraper
 
     def factor(self, states_me, states_you=None, subgoal=None, obstacle=None):
-        p = states_me.s.p
+        p = states_me.next_s.p
         obstacle_p = obstacle
         if not obstacle_p:
             return np.inf
