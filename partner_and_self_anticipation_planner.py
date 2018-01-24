@@ -10,7 +10,6 @@ import numpy as np
 import itertools
 from agents_ver3 import AgentState
 from states import States
-from scraper import UtilityScraper
 from utility_visualization import utility_color_map
 from factors import DistanceToObstacle
 from factors import MovingTowardSubgoals
