@@ -6,7 +6,6 @@ Created on Tue Aug 22 14:27:45 2017
 """
 
 import numpy as np
-#  from walking_model import walking_model
 
 
 class AgentRobot(object):
@@ -69,7 +68,8 @@ class AgentRobot(object):
 
 class AgentHuman(object):
     def __init__(
-            self, subgoals, initial_state, d_t=0.03, trajectory_me=None, trajectory_you=None):
+                self, subgoals, initial_state, d_t=0.03,
+                trajectory_me=None, trajectory_you=None):
         if trajectory_me is not None:
             self.trajectory_me = trajectory_me[:-1]
         else:
@@ -203,9 +203,9 @@ class Human(AgentHuman):
 
     def decide_action(self):
         #  提案モデルに対する比較手法
-#        self.v = walking_model()
-#        self.count += 1
-#        self.v = ps[self.count]
+        #   self.v = walking_model()
+        #   self.count += 1
+        #   self.v = ps[self.count]
         if self.ps.size != 0:
             self.v = self.ps[0]
             self.ps = self.ps[1:]
