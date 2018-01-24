@@ -32,5 +32,6 @@ class BaseFactor(object):
         """
         assert not np.any(np.isnan(x))
         f_x = - np.abs((((x - self.c) / self.a)**2)**self.b)
-        assert not np.any(np.isnan(f_x)), "{}, {}, {}, {}, {}, {}, {}".format(f_x, x, self.a, self.b, self.c, self, type(x))
+        assert not np.any(np.isnan(f_x)), "{}, {}, {}, {}, {}, {}, {}".format(
+                f_x, x, self.a, self.b, self.c, self, type(x))
         return f_x
