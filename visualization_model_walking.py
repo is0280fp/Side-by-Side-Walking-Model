@@ -260,7 +260,7 @@ class Robot(object):
 
 
 if __name__ == '__main__':
-    length_step = 48
+    length_step = 52
     n = 0
     lim = 5
 

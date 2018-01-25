@@ -117,7 +117,7 @@ if __name__ == '__main__':
     k_mv = 0.0
     k_mw = 0.0
     k_pt = 0  # 新しいfactor
-    length_step = 55
+    length_step = 52
     relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
 
