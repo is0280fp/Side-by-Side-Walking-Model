@@ -6,6 +6,7 @@ Created on Tue Aug 22 14:27:45 2017
 """
 
 import numpy as np
+from segmentation_data import segmentation
 
 
 class AgentRobot(object):
@@ -144,7 +145,26 @@ class Human(AgentHuman):
             self.load_trajectory(filepath)
 
     def load_trajectory(self, filepath):
-        self.ps = np.load(filepath)
+        #        self.ps = np.load(filepath)
+        threshold = 250
+        human_center_p = []
+
+        sequence_scans = np.load(filepath)
+        background_points = sequence_scans[0].transpose()
+        for i, current_scan in enumerate(sequence_scans):
+            current_scan = current_scan.transpose()
+            current_fg, current_bg = \
+                segmentation(background_points, current_scan, threshold)
+            current_fg = current_fg / 1000
+            current_bg = current_bg / 1000
+            if len(current_fg) == 0:
+                pass
+            else:
+                human_center_x = np.sum(current_fg[:, 0])/len(current_fg)
+                human_center_y = np.sum(current_fg[:, 1])/len(current_fg)
+                human_center_p.append(
+                        np.array([human_center_x, human_center_y]))
+        self.ps = np.array(human_center_p)
 
     def load_default_trajectory(self):
         self.ps = np.array(([
