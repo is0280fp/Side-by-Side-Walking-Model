@@ -145,7 +145,11 @@ if __name__ == '__main__':
     human_a = Robot(
         subgoals, initial_state_a, planner_a, d_t, trajectory_a, trajectory_b)
 
-    human_b = Human(subgoals, initial_state_b, d_t, trajectory_b, trajectory_a)
+    human_b = Human(subgoals, initial_state_b, d_t,
+                    trajectory_b, trajectory_a,
+                    "C:/Users/yume/Desktop/URG-40LX/2017.09.27-14.30.36_nakamura.npy")
+#    human_b = Human(subgoals, initial_state_b, d_t,
+#                    trajectory_b, trajectory_a)
 
     logger = Logger(length_step)
 
