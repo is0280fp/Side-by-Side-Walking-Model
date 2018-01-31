@@ -115,11 +115,15 @@ class PartnerSelfAnticipationPlanner(object):
             d(ndarray):
                 p_t - p.{t-1}
         """
-        temp = trajectory[-1].p - trajectory[-2].p
-        next_p = trajectory[-1].p + temp
-        temp = trajectory[-1].d - trajectory[-2].d
-        next_d = trajectory[-1].d + temp
-        next_d = next_d / np.linalg.norm(next_d)
+#        temp = trajectory[-1].p - trajectory[-2].p
+#        next_p = trajectory[-1].p + temp
+#        temp = trajectory[-1].d - trajectory[-2].d
+#        next_d = trajectory[-1].d + temp
+#        next_d = next_d / np.linalg.norm(next_d)
+        p = trajectory[-1].p
+        d = trajectory[-1].p - trajectory[-2].p
+        next_p = trajectory[-1].p + d
+        next_d = next_p - p
         return AgentState(next_p, next_d)
 
     def making_grid(self,
