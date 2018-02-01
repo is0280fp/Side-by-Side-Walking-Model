@@ -38,7 +38,8 @@ class Logger(object):
 #        relative_distance = np.sqrt((l_p - f_p) * 2)
         plt.plot(*l_p.T, "-o", label="Robot")
         plt.plot(*f_p.T, "*", label="Human")
-        plt.plot(-0.2, 3.0, "^", label="Goal")
+#        plt.plot(-0.2, 3.0, "^", label="Goal")
+        plt.plot(-0.5, 1.7, "^", label="Goal")
 #        plt.plot(self.obstacles_p.T[0], self.obstacles_p.T[1], "^",
 #                 label="obstacle")
 #        print("relative_distance", relative_distance[-1])
@@ -87,13 +88,10 @@ if __name__ == '__main__':
     # 表描画
     #    実測値
     trajectory_a = make_trajectory([
-            [0.98094249456, 0.731414990608],
             [0.88094249456, 0.631414990608],
             [0.75264596,  0.55928402]
             ])
     trajectory_b = make_trajectory([
-            [1.73578850047, -0.99751806081],
-            [1.74111587829, -0.937682491898],
             [1.58094249456, -0.831414990608],
             [1.46679422611, -0.745349506114]
             ])
@@ -117,7 +115,7 @@ if __name__ == '__main__':
     k_mv = 0.0
     k_mw = 0.0
     k_pt = 0  # 新しいfactor
-    length_step = 52
+    length_step = 30
     relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
 

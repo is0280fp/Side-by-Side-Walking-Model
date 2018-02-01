@@ -33,10 +33,9 @@ if __name__ == '__main__':
     n = 0
     lim = 5
     trajectory_a = make_trajectory([
-            [0.73578850047, 0.59751806081],
-            [0.74111587829, 0.537682491898],
-            [0.58094249456, 0.431414990608],
-            [0.46679422611, 0.345349506114]
+            [0.98094249456, 0.731414990608],
+            [0.88094249456, 0.631414990608],
+            [0.75264596,  0.55928402]
             ])
     trajectory_b = make_trajectory([
             [1.73578850047, -0.99751806081],
@@ -64,7 +63,7 @@ if __name__ == '__main__':
         x_me, y_me = decide_robot_absolute_position(p, d, social_distance)
 
         print("frame", n)
-        plt.title("blue = Human, red = Model")
+        plt.title("blue = Robot, red = Human")
         plt.plot(x_you, y_you, '*', color="r")
         plt.plot(x_me, y_me, '.', color="b")
         plt.xlim(-lim, lim)
