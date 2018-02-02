@@ -7,7 +7,7 @@ Created on Tue Jan 23 19:26:46 2018
 
 import numpy as np
 import matplotlib.pyplot as plt
-from decide_robot_absolute_position import decide_robot_absolute_position
+from decide_robot_absolute_position import f
 from agents_ver3 import Human
 from states import AgentState
 
@@ -29,7 +29,7 @@ def make_trajectory(ps):
 
 
 if __name__ == '__main__':
-    length_step = 52
+    length_step = 20
     n = 0
     lim = 5
     trajectory_a = make_trajectory([
@@ -47,8 +47,8 @@ if __name__ == '__main__':
     social_distance = 1.5
     subgoals = [np.array([-0.2, 3.0])]
     d_t = 0.1
+    prev_p = np.array([1.46679422611, -0.745349506114])
 
-    plt.ion()
     human_b = Human(
                 subgoals, initial_state_b, d_t, trajectory_b, trajectory_a)
     while n < length_step:
@@ -60,17 +60,25 @@ if __name__ == '__main__':
         y_you = human_b.s.p[1]
         p = np.array([x_you, y_you])
         d = human_b.s.d
-        x_me, y_me = decide_robot_absolute_position(p, d, social_distance)
+#        x_me, y_me = decide_robot_absolute_position(prev_p, p, social_distance)
+        x_me, y_me = f(prev_p, p, social_distance)
 
         print("frame", n)
         plt.title("blue = Robot, red = Human")
         plt.plot(x_you, y_you, '*', color="r")
+#        plt.quiver(x_you, y_you, d[0]*20, d[1]*20, angles='xy',scale_units='xy',scale=1)
+#        plt.quiver(x_you, y_you, -d[0]*20, -d[1]*20, angles='xy',scale_units='xy',scale=1)
         plt.plot(x_me, y_me, '.', color="b")
+#        print("prev_p", prev_p)
+#        print("human_b.s.d", d)
+#        print("x_you, y_you", x_you, y_you)
         plt.xlim(-lim, lim)
         plt.ylim(-lim, lim)
         plt.axes().set_aspect('equal')
         plt.grid()
         plt.show()
         plt.draw()
+
+        prev_p = np.array([x_you, y_you])
         print("-----------------------------------------------------------------------")
         n += 1  # インクリメント

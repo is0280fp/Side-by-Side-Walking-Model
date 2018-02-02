@@ -8,7 +8,7 @@ Created on Fri Jul 14 21:56:53 2017
 import copy
 import matplotlib.pyplot as plt
 import numpy as np
-import partner_and_self_anticipation_planner
+import partner_and_self_anticipation_planner as p_and_s_anticipation_p
 from scraper import UtilityScraper
 from agents_ver3 import Robot
 from states import AgentState
@@ -38,13 +38,12 @@ class Logger(object):
 #        relative_distance = np.sqrt((l_p - f_p) * 2)
         plt.plot(*l_p.T, "-o", label="Robot")
         plt.plot(*f_p.T, "*", label="Human")
-#        plt.plot(-0.2, 3.0, "^", label="Goal")
-        plt.plot(-0.5, 1.7, "^", label="Goal")
+        plt.plot(-0.2, 3, "^", label="Goal")
 #        plt.plot(self.obstacles_p.T[0], self.obstacles_p.T[1], "^",
 #                 label="obstacle")
 #        print("relative_distance", relative_distance[-1])
-        plt.xticks(np.arange(-0.5, 1.5, 0.5))
-        plt.yticks(np.arange(-0.8, 3, 0.5))  # 表の軸を0~20に固定
+        plt.xticks(np.arange(-1.0, 3.0, 0.5))
+        plt.yticks(np.arange(-0.8, 5.5, 0.5))  # 表の軸を0~20に固定
         plt.grid()
         plt.legend()
         plt.gca().set_aspect('equal')
@@ -88,34 +87,36 @@ if __name__ == '__main__':
     # 表描画
     #    実測値
     trajectory_a = make_trajectory([
+            [0.98094249456, 0.731414990608],
             [0.88094249456, 0.631414990608],
             [0.75264596,  0.55928402]
             ])
     trajectory_b = make_trajectory([
+            [1.73578850047, -0.99751806081],
             [1.58094249456, -0.831414990608],
             [1.46679422611, -0.745349506114]
             ])
 #    テスト用の簡単な軌跡
 
-    subgoals = [np.array([-0.2, 3.0])]
+    subgoals = [np.array([-0.2, 3])]
     obstacles = []
 
     d_t = 0.1
-    num_grid_x = 10
-    num_grid_y = 10
+    num_grid_x = 7
+    num_grid_y = 7
     search_range_x = 0.2
     search_range_y = 0.2
 
     k_o = 0
     k_rv = 0.0
-    k_rd = 0.2
+    k_rd = 0
     k_ra = 0.5  # ra = relative_angle
-    k_s = 0.5
+    k_s = 0.0
     k_ma = 0.0
     k_mv = 0.0
     k_mw = 0.0
     k_pt = 0  # 新しいfactor
-    length_step = 30
+    length_step = 15
     relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
 
@@ -135,8 +136,7 @@ if __name__ == '__main__':
 #   bさんはutilityに基づいて，経路計画する
     scraper = UtilityScraper(num_grid_x, num_grid_y)
 
-    planner_a = \
-        partner_and_self_anticipation_planner.PartnerSelfAnticipationPlanner(
+    planner_a = p_and_s_anticipation_p.PartnerSelfAnticipationPlanner(
                 "a", num_grid_x, num_grid_y, search_range_x, search_range_y,
                 k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, k_pt, d_t,
                 relative_angle_a, scraper)
@@ -233,14 +233,18 @@ if __name__ == '__main__':
             u = normalized_d_you[0], normalized_v_yoko[0]
             v = normalized_d_you[1], normalized_v_yoko[1]
 #            vector_graph(x, y, u, v)
+#            print("x", x)
+#            print("y", y)
+#            print("u", u)
+#            print("v", v)
 #            print("p_me")
 #            print(np.array(value_p_me))
 #            print("")
 #            print("p_you")
 #            print(np.array(value_p_you))
 #            print("")
-#            print("d_you")
-#            print(np.array(d_you))
+            print("d_you")
+            print(np.array(d_you))
 #            print("")
 #            print("v_yoko")
 #            print(np.array(v_yoko))

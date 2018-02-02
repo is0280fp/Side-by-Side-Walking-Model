@@ -6,6 +6,7 @@ Created on Tue Aug 22 14:27:45 2017
 """
 
 import numpy as np
+import copy
 
 
 class AgentRobot(object):
@@ -44,8 +45,9 @@ class AgentRobot(object):
     def get_current_subgoal(self):
         return self.subgoals[0]
 
+    #  現在位置を観測
     def measure(self, s_me, s_you, subgoal, obstacle):
-        self.trajectory_me.append(s_me)
+        self.trajectory_me.append(copy.deepcopy(s_me))
         self.trajectory_you.append(s_you)
         self.subgoal = subgoal
         self.obstacle = obstacle
@@ -57,10 +59,10 @@ class AgentRobot(object):
         raise NotImplementedError(
                 "You have to extend Agentclass if you want to use this module")
 
+    #  現在位置を次回位置に移動する
     def move(self):
-        self.s.p = self.s.p + self.v
-#        dif = self.get_current_subgoal() - self.s.p
-#        self.s.d = dif / np.linalg.norm(dif)
+        s = self.s
+        s.p = self.s.p + self.v
         self.s.d = self.v
 
     def __repr__(self):
