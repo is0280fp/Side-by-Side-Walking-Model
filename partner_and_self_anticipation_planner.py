@@ -84,6 +84,8 @@ class PartnerSelfAnticipationPlanner(object):
         for next_p_you, next_p_me in each_other_p:
             next_d_me = next_p_me - s_me.p
             next_d_you = next_p_you - s_you.p
+            assert not np.array_equal(next_d_me, np.array([0, 0]))
+            assert not np.array_equal(next_d_you, np.array([0, 0]))
             states_me = States(
                     prev_s_me, s_me, AgentState(next_p_me, next_d_me))
             states_you = States(
@@ -115,15 +117,11 @@ class PartnerSelfAnticipationPlanner(object):
             d(ndarray):
                 p_t - p.{t-1}
         """
-#        temp = trajectory[-1].p - trajectory[-2].p
-#        next_p = trajectory[-1].p + temp
-#        temp = trajectory[-1].d - trajectory[-2].d
-#        next_d = trajectory[-1].d + temp
-#        next_d = next_d / np.linalg.norm(next_d)
-        p = trajectory[-1].p
-        d = trajectory[-1].p - trajectory[-2].p
-        next_p = trajectory[-1].p + d
-        next_d = next_p - p
+        temp = trajectory[-1].p - trajectory[-2].p
+        next_p = trajectory[-1].p + temp
+        temp = trajectory[-1].d - trajectory[-2].d
+        next_d = trajectory[-1].d + temp
+        next_d = next_d / np.linalg.norm(next_d)
         return AgentState(next_p, next_d)
 
     def making_grid(self,
@@ -142,11 +140,14 @@ class PartnerSelfAnticipationPlanner(object):
 
         dto_me = DistanceToObstacle(self.scraper, a=20.0, b=0.40)
         dto_you = DistanceToObstacle(self.scraper, a=20.0, b=0.40)
-        mts_me = MovingTowardSubgoals(self.scraper, a=0.45, b=1.00, c=0.0, d_t=0.03)
-        mts_you = MovingTowardSubgoals(self.scraper, a=0.45, b=1.00, c=0.0, d_t=0.03)
+        mts_me = MovingTowardSubgoals(
+                self.scraper, a=0.45, b=1.00, c=0.0, d_t=0.03)
+        mts_you = MovingTowardSubgoals(
+                self.scraper, a=0.45, b=1.00, c=0.0, d_t=0.03)
         rv = RelativeVelocity(self.scraper, a=0.20, b=1.20, c=0.0, d_t=0.03)
         rd = RelativeDistance(self.scraper, a=0.25, b=2.00, c=0.75, d_t=0.03)
-        ra = RelativeAngle(self.scraper, a=0.08, b=3.00, c=self.relative_a, d_t=0.03)
+        ra = RelativeAngle(
+                self.scraper, a=0.08, b=3.00, c=self.relative_a, d_t=0.03)
         v_me = Velocity(self.scraper, a=0.30, b=1.6, c=1.10, d_t=0.03)
         v_you = Velocity(self.scraper, a=0.30, b=1.6, c=1.10, d_t=0.03)
         a_me = Acceleration(self.scraper, a=0.20, b=1.0, c=0.0, d_t=0.03)
@@ -194,10 +195,12 @@ class PartnerSelfAnticipationPlanner(object):
 
         utility_me = (self.k_o * f_o_me + self.k_s * f_s_me +
                       self.k_rv * f_rv + self.k_rd * f_rd + self.k_ra * f_ra +
-                      self.k_ma * f_ma_me + self.k_mv * f_mv_me + self.k_mw * f_mw_me)
+                      self.k_ma * f_ma_me +
+                      self.k_mv * f_mv_me + self.k_mw * f_mw_me)
         utility_you = (self.k_o * f_o_you + self.k_s * f_s_you +
                        self.k_rv * f_rv + self.k_rd * f_rd +
-                       self.k_ra * f_ra + self.k_ma * f_ma_you + self.k_mv * f_mv_you + self.k_mw * f_mw_you)
+                       self.k_ra * f_ra + self.k_ma * f_ma_you +
+                       self.k_mv * f_mv_you + self.k_mw * f_mw_you)
         return utility_me, utility_you
 
 
