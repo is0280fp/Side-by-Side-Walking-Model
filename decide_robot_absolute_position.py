@@ -24,6 +24,18 @@ def f(p_prev, p, r):
     return p + r * d_unit
 
 
+#  直線上のある点からある距離の先にある点
+def decide_robot_absolute_position(p, d, r):
+    assert not np.array_equal(d, np.array([0, 0]))
+    d_unit = d / np.linalg.norm(d)
+    return p + r * d_unit
+
+
+#  成分ベクトルの平均
+def avg_vector(d, d_num):
+    return d / d_num
+
+
 class Test(unittest.TestCase):
     def setUp(self):
         pass
