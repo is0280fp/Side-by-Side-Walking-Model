@@ -48,7 +48,7 @@ class AgentRobot(object):
     #  現在位置を観測
     def measure(self, s_me, s_you, subgoal, obstacle):
         self.trajectory_me.append(copy.deepcopy(s_me))
-        self.trajectory_you.append(s_you)
+        self.trajectory_you.append(copy.deepcopy(s_you))
         self.subgoal = subgoal
         self.obstacle = obstacle
 
@@ -87,8 +87,8 @@ class AgentHuman(object):
         self.d_t = d_t
 
     def measure(self, s_me, s_you=None):
-        self.trajectory_me.append(s_me)
-        self.trajectory_you.append(s_you)
+        self.trajectory_me.append(copy.deepcopy(s_me))
+        self.trajectory_you.append(copy.deepcopy(s_you))
 
     def estimate(self):
         pass
