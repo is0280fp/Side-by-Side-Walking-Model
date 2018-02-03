@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import copy
 from collections import defaultdict
 from decide_robot_absolute_position import decide_robot_absolute_position
+from decide_robot_absolute_position import avg_vector
 import planner_for_seach_parameters
 from agents_ver3 import Robot
 from states import AgentState
@@ -86,7 +87,7 @@ def make_trajectory(ps):
 
 
 if __name__ == '__main__':
-    length_step = 52
+    length_step = 15
     n = 0
     lim = 5
     trajectory_a = make_trajectory([
@@ -96,11 +97,9 @@ if __name__ == '__main__':
             ])
     trajectory_b = make_trajectory([
             [1.73578850047, -0.99751806081],
-            [1.74111587829, -0.937682491898],
             [1.58094249456, -0.831414990608],
             [1.46679422611, -0.745349506114]
             ])
-    initial_state_b = trajectory_b[-1]
     social_distance = 1.5
     subgoals = [np.array([-0.2, 3.0])]
     obstacles = []
@@ -120,11 +119,12 @@ if __name__ == '__main__':
     k_mv = 1
     k_mw = 1
     k_pt = 1  # 新しいfactor
-    length_step = 20
+    length_step = 35
     relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
 
     n = 0
+    count = 0
     errors = 0
     initial_state_a = trajectory_a[-1]
     initial_state_b = trajectory_b[-1]
@@ -132,7 +132,11 @@ if __name__ == '__main__':
     error_lst = []
     error_paras_match = defaultdict()
 
+    d_num_for_avg = 15
+    d_lst = []
+
     for i, ab in enumerate(a_b_set):
+        print("paras_No.", count)
         ab = np.array(ab)
         rv_a = ab[0]
         rv_b = ab[1]
@@ -168,6 +172,7 @@ if __name__ == '__main__':
         n = 0
         errors = 0
         while n < length_step:
+            temp_lst = []
             human_a.measure(human_a.s, human_b.s, subgoals, obstacles)
             human_b.measure(human_b.s, human_a.s)
 
@@ -189,31 +194,39 @@ if __name__ == '__main__':
             model_x_me = human_a.s.p[0]
             model_y_me = human_a.s.p[1]
             p = np.array([x_you, y_you])
-            d = human_b.s.d
-            ideal_x_me, ideal_y_me = \
-                decide_robot_absolute_position(p, d, social_distance)
+            d_lst.append(human_b.s.d)
+            if len(d_lst) < d_num_for_avg:
+                d_sum = np.sum(np.array(d_lst), axis=0)
+            else:
+                for i in range(d_num_for_avg):
+                    temp_lst.append(d_lst[-1 - i])
+                d_sum = np.sum(np.array(temp_lst), axis=0)
+            d = avg_vector(d_sum, d_num_for_avg)
+            ideal_x_me, ideal_y_me = decide_robot_absolute_position(
+                    p, d, social_distance)
 
             ideal_p_me = np.array([ideal_x_me, ideal_y_me])
             model_p_me = np.array([model_x_me, model_y_me])
             errors += calculate_error(ideal_p_me, model_p_me)
 
-#            print("frame", n)
-#            plt.title("blue = Human, red = Model")
-#            plt.plot(x_you, y_you, '*', color="r")
-#            plt.plot(model_x_me, model_y_me, '.', color="g")
-#            plt.plot(ideal_x_me, ideal_y_me, '.', color="b")
-#            plt.xlim(-lim, lim)
-#            plt.ylim(-lim, lim)
-#            plt.axes().set_aspect('equal')
-#            plt.grid()
-#            plt.show()
-#            plt.draw()
-#            print("--------------------------------------------------------------")
+            print("frame", n)
+            plt.title("blue = Human, red = Model")
+            plt.plot(x_you, y_you, '*', color="r")
+            plt.plot(model_x_me, model_y_me, '.', color="g")
+            plt.plot(ideal_x_me, ideal_y_me, '.', color="b")
+            plt.xlim(-lim, lim)
+            plt.ylim(-lim, lim)
+            plt.axes().set_aspect('equal')
+            plt.grid()
+            plt.show()
+            plt.draw()
+            print("--------------------------------------------------------------")
             n += 1  # インクリメント
         print("--------------------------------------------------------------")
 
         error_paras_match.setdefault(errors, ab)
         error_lst.append(errors)
+        count += 1
 
-error_min = np.min(np.array(error_lst))
+error_min = np.nanmin(np.array(error_lst))
 optimum_paras = error_paras_match[error_min]
