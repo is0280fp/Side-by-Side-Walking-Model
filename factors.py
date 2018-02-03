@@ -107,7 +107,9 @@ class AngularVelocity(BaseFactor):
 
     def angularvelocity(self, prev_p, p, next_p, d_t):
         # 現在と予測による角速度
-        return motion_angular_velocity(prev_p, p, next_p, d_t)
+        theta = motion_angular_velocity(prev_p, p, next_p, d_t)
+        m_w = revision_theta(theta)
+        return np.abs(m_w)
 
 
 class MovingTowardSubgoals(BaseFactor):
