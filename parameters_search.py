@@ -128,7 +128,7 @@ if __name__ == '__main__':
     errors = 0
     initial_state_a = trajectory_a[-1]
     initial_state_b = trajectory_b[-1]
-    a_b_set = choose_parameters(0, 2, 1)
+    a_b_set = choose_parameters(0, 4, 1)
     error_lst = []
     error_paras_match = defaultdict()
 
@@ -209,18 +209,18 @@ if __name__ == '__main__':
             model_p_me = np.array([model_x_me, model_y_me])
             errors += calculate_error(ideal_p_me, model_p_me)
 
-            print("frame", n)
-            plt.title("blue = Human, red = Model")
-            plt.plot(x_you, y_you, '*', color="r")
-            plt.plot(model_x_me, model_y_me, '.', color="g")
-            plt.plot(ideal_x_me, ideal_y_me, '.', color="b")
-            plt.xlim(-lim, lim)
-            plt.ylim(-lim, lim)
-            plt.axes().set_aspect('equal')
-            plt.grid()
-            plt.show()
-            plt.draw()
-            print("--------------------------------------------------------------")
+#            print("frame", n)
+#            plt.title("blue = Human, red = Model")
+#            plt.plot(x_you, y_you, '*', color="r")
+#            plt.plot(model_x_me, model_y_me, '.', color="g")
+#            plt.plot(ideal_x_me, ideal_y_me, '.', color="b")
+#            plt.xlim(-lim, lim)
+#            plt.ylim(-lim, lim)
+#            plt.axes().set_aspect('equal')
+#            plt.grid()
+#            plt.show()
+#            plt.draw()
+#            print("--------------------------------------------------------------")
             n += 1  # インクリメント
         print("--------------------------------------------------------------")
 
