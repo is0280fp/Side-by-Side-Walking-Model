@@ -22,45 +22,28 @@ from factors import Acceleration
 
 
 class PartnerSelfAnticipationPlanner(object):
-    def __init__(self, specified_rv_a, specified_rv_b,
-                 specified_rd_a, specified_rd_b,
-                 specified_ra_a, specified_ra_b,
-                 specified_mv_a, specified_mv_b,
-                 specified_ma_a, specified_ma_b,
-                 specified_mav_a, specified_mav_b,
+    def __init__(self, specified_rv_k, specified_rd_k,
+                 specified_ra_k, specified_mv_k,
+                 specified_ma_k, specified_mav_k, specified_sgd_k,
+                 specified_od_k,
                  name=None, num_grid_x=7, num_grid_y=7,
-                 search_range_x=0.6, search_range_y=0.6,
-                 k_o=0.11, k_rv=0.01, k_rd=0.25, k_ra=0.32, k_s=0.2,
-                 k_ma=0.01, k_mv=0.05, k_mw=0.01, k_pt=0,
-                 d_t=0.03, relative_a=None, scraper=None):
+                 search_range_x=0.6, search_range_y=0.6, d_t=0.1,
+                 relative_a=None, scraper=None):
         self.name = name
         self.num_grid_x = num_grid_x
         self.num_grid_y = num_grid_y
         self.search_range_x = search_range_x
         self.search_range_y = search_range_y
-        self.k_o = k_o
-        self.k_rv = k_rv
-        self.k_rd = k_rd
-        self.k_ra = k_ra  # ra = relative_angle
-        self.k_s = k_s
-        self.k_ma = k_ma
-        self.k_mv = k_mv
-        self.k_mw = k_mw
-        self.k_pt = k_pt
         self.d_t = d_t
-        self.specified_rv_a = specified_rv_a
-        self.specified_rv_b = specified_rv_b
-        self.specified_rd_a = specified_rd_a
-        self.specified_rd_b = specified_rd_b
-        self.specified_ra_a = specified_ra_a
-        self.specified_ra_b = specified_ra_b
-        self.specified_mv_a = specified_mv_a
-        self.specified_mv_b = specified_mv_b
-        self.specified_ma_a = specified_ma_a
-        self.specified_ma_b = specified_ma_b
-        self.specified_mav_a = specified_mav_a
-        self.specified_mav_b = specified_mav_a
-        self.relative_a = np.deg2rad(relative_a)
+        self.specified_rv_k = specified_rv_k
+        self.specified_rd_k = specified_rd_k
+        self.specified_ra_k = specified_ra_k
+        self.specified_mv_k = specified_mv_k
+        self.specified_ma_k = specified_ma_k
+        self.specified_mav_k = specified_mav_k
+        self.specified_sgd_k = specified_sgd_k
+        self.specified_od_k = specified_od_k
+        self.relative_a = relative_a
         self.scraper = scraper
 
     def decide_action(self, trajectory_me, trajectory_you,
@@ -156,36 +139,20 @@ class PartnerSelfAnticipationPlanner(object):
 
         dto_me = DistanceToObstacle(self.scraper, a=20.0, b=0.40)
         dto_you = DistanceToObstacle(self.scraper, a=20.0, b=0.40)
-
         mts_me = MovingTowardSubgoals(
                 self.scraper, a=0.45, b=1.00, c=0.0, d_t=0.1)
         mts_you = MovingTowardSubgoals(
                 self.scraper, a=0.45, b=1.00, c=0.0, d_t=0.1)
-
-#        rv = RelativeVelocity(self.scraper, a=0.20, b=1.20, c=0.0, d_t=0.1)
-        rv = RelativeVelocity(self.scraper, self.specified_rv_a,
-                              self.specified_rv_b, c=0.0, d_t=0.1)
-
-        rd = RelativeDistance(self.scraper, self.specified_rd_a,
-                              self.specified_rd_b, c=1.5, d_t=0.1)
-
-        ra = RelativeAngle(self.scraper, self.specified_ra_a,
-                           self.specified_ra_b, c=self.relative_a, d_t=0.1)
-
-        v_me = Velocity(self.scraper, self.specified_mv_a,
-                        self.specified_mv_b, c=1.10, d_t=0.1)
-        v_you = Velocity(self.scraper, self.specified_mv_a,
-                         self.specified_mv_b, c=1.10, d_t=0.1)
-
-        a_me = Acceleration(self.scraper, self.specified_ma_a,
-                            self.specified_ma_b, c=0.0, d_t=0.1)
-        a_you = Acceleration(self.scraper, self.specified_ma_a,
-                             self.specified_ma_b, c=0.0, d_t=0.1)
-
-        av_me = AngularVelocity(self.scraper, self.specified_mav_a,
-                                self.specified_mav_b, c=0.0, d_t=0.1)
-        av_you = AngularVelocity(self.scraper, self.specified_mav_a,
-                                 self.specified_mav_b, c=0.0, d_t=0.1)
+        rv = RelativeVelocity(self.scraper, a=0.20, b=1.20, c=0.0, d_t=0.1)
+        rd = RelativeDistance(self.scraper, a=0.25, b=2.00, c=1.5, d_t=0.1)
+        ra = RelativeAngle(
+                self.scraper, a=0.08, b=3.00, c=self.relative_a, d_t=0.1)
+        v_me = Velocity(self.scraper, a=0.30, b=1.6, c=1.10, d_t=0.1)
+        v_you = Velocity(self.scraper, a=0.30, b=1.6, c=1.10, d_t=0.1)
+        a_me = Acceleration(self.scraper, a=0.20, b=1.0, c=0.0, d_t=0.1)
+        a_you = Acceleration(self.scraper, a=0.20, b=1.0, c=0.0, d_t=0.1)
+        av_me = AngularVelocity(self.scraper, a=0.7, b=4.4, c=0.0, d_t=0.1)
+        av_you = AngularVelocity(self.scraper, a=0.7, b=4.4, c=0.0, d_t=0.1)
 
         f_o_me = dto_me.score(states_me, None, subgoal, obstacle)
         f_o_you = dto_you.score(states_me, None, subgoal, obstacle)
@@ -201,36 +168,22 @@ class PartnerSelfAnticipationPlanner(object):
         f_mw_me = av_me.score(states_me, None, None, None)
         f_mw_you = av_you.score(states_you, None, None, None)
 
-#        o_me_dis = dto_me.factor(states_me, None, subgoal, obstacle)
-#        o_you_dis = dto_you.factor(states_me, None, subgoal, obstacle)
-#        s_me_theta = mts_me.factor(states_me, None, subgoal, obstacle)
-#        s_you_theta = mts_you.factor(states_you, None, subgoal, obstacle)
-#        rv_vec = rv.factor(states_me, states_you, subgoal, obstacle)
-#        rd_dis = rd.factor(states_me, states_you, subgoal, obstacle)
-#        ra_theta = ra.factor(
-#                states_me, states_you, subgoal, obstacle)
-#        mv_me_vec = v_me.factor(states_me, None, None, None)
-#        mv_you_vec = v_you.factor(states_you, None, None, None)
-#        ma_me_gal = a_me.factor(states_me, None, None, None)
-#        ma_you_gal = a_you.factor(states_you, None, None, None)
-#        mw_me_rad = av_me.factor(states_me, None, None, None)
-#        mw_you_rad = av_you.factor(states_you, None, None, None)
-
-#        ra.pass_values()
-
-#        self.scraper.add(f_ma_me, f_ma_you, f_mv_me, f_mv_you,
-#                         f_mw_me, f_mw_you, f_ra, f_rd, f_rv,
-#                         f_o_me, f_o_you, f_s_me, f_s_you,
-#                         o_me_dis, o_you_dis, s_me_theta, s_you_theta, rv_vec,
-#                         rd_dis, ra_theta, mv_me_vec, mv_you_vec, ma_me_gal,
-#                         ma_you_gal, mw_me_rad, mw_you_rad)
-
-        utility_me = (self.k_o * f_o_me + self.k_s * f_s_me +
-                      self.k_rv * f_rv + self.k_rd * f_rd + self.k_ra * f_ra +
-                      self.k_ma * f_ma_me + self.k_mv * f_mv_me + self.k_mw * f_mw_me)
-        utility_you = (self.k_o * f_o_you + self.k_s * f_s_you +
-                       self.k_rv * f_rv + self.k_rd * f_rd +
-                       self.k_ra * f_ra + self.k_ma * f_ma_you + self.k_mv * f_mv_you + self.k_mw * f_mw_you)
+        utility_me = (self.specified_od_k * f_o_me +
+                      self.specified_sgd_k * f_s_me +
+                      self.specified_rv_k * f_rv +
+                      self.specified_rd_k * f_rd +
+                      self.specified_ra_k * f_ra +
+                      self.specified_ma_k * f_ma_me +
+                      self.specified_mv_k * f_mv_me +
+                      self.specified_mav_k * f_mw_me)
+        utility_you = (self.specified_od_k * f_o_you +
+                       self.specified_sgd_k * f_s_you +
+                       self.specified_rv_k * f_rv +
+                       self.specified_rd_k * f_rd +
+                       self.specified_ra_k * f_ra +
+                       self.specified_ma_k * f_ma_you +
+                       self.specified_mv_k * f_mv_you +
+                       self.specified_mav_k * f_mw_you)
         return utility_me, utility_you
 
 
