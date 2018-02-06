@@ -98,7 +98,7 @@ if __name__ == '__main__':
             ])
 #    テスト用の簡単な軌跡
 
-    subgoals = [np.array([-0.2, 3])]
+    subgoals = [np.array([-0.5, 3])]
     obstacles = []
 
     d_t = 0.1
@@ -108,15 +108,18 @@ if __name__ == '__main__':
     search_range_y = 0.2
 
     k_o = 0
-    k_rv = 0.0
-    k_rd = 0
-    k_ra = 0.5  # ra = relative_angle
-    k_s = 0.0
-    k_ma = 0.0
-    k_mv = 0.0
-    k_mw = 0.0
+
+    k_rd = 1.01
+    k_ra = 2.01  # ra = relative_angle
+    k_s = 3.0
+    k_mv = 0.01
+
+    k_ma = 0.1
+    k_rv = 0.1
+    k_mw = 0.1
+
     k_pt = 0  # 新しいfactor
-    length_step = 15
+    length_step = 52
     relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
 
@@ -243,8 +246,8 @@ if __name__ == '__main__':
 #            print("p_you")
 #            print(np.array(value_p_you))
 #            print("")
-            print("d_you")
-            print(np.array(d_you))
+#            print("d_you")
+#            print(np.array(d_you))
 #            print("")
 #            print("v_yoko")
 #            print(np.array(v_yoko))
@@ -266,5 +269,5 @@ if __name__ == '__main__':
 #            print(np.array(value_r_a))
 #            print("")
 #            print(np.array(np.rad2deg(np.abs(value_r_a))))
-            print("**************************************************************************")
+#            print("**************************************************************************")Z
     print("==================================================================================")
