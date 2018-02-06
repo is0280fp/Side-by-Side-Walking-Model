@@ -110,16 +110,7 @@ if __name__ == '__main__':
     search_range_x = 0.2
     search_range_y = 0.2
 
-    k_o = 1
-    k_rv = 1
-    k_rd = 1
-    k_ra = 1  # ra = relative_angle
-    k_s = 1
-    k_ma = 1
-    k_mv = 1
-    k_mw = 1
-    k_pt = 1  # 新しいfactor
-    length_step = 35
+    length_step = 40
     relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
 
@@ -128,35 +119,30 @@ if __name__ == '__main__':
     errors = 0
     initial_state_a = trajectory_a[-1]
     initial_state_b = trajectory_b[-1]
-    a_b_set = choose_parameters(0, 4, 1)
+    k_set = choose_parameters(0, 4, 1)
     error_lst = []
     error_paras_match = defaultdict()
 
     d_num_for_avg = 15
     d_lst = []
 
-    for i, ab in enumerate(a_b_set):
+    for i, k in enumerate(k_set):
         print("paras_No.", count)
-        ab = np.array(ab)
-        rv_a = ab[0]
-        rv_b = ab[1]
-        rd_a = ab[2]
-        rd_b = ab[3]
-        ra_a = ab[4]
-        ra_b = ab[5]
-        mv_a = ab[6]
-        mv_b = ab[7]
-        ma_a = ab[8]
-        ma_b = ab[9]
-        mav_a = ab[10]
-        mav_b = ab[11]
+
+        rd_k = k[0]
+        ra_k = k[1]
+        sgd_k = k[2]
+        mv_k = k[3]
+
+        mav_k = 0.01
+        ma_k = 0.01
+        rv_k = 0.01
+        od_k = 0
         planner_a = \
             planner_for_seach_parameters.PartnerSelfAnticipationPlanner(
-                    rv_a, rv_b, rd_a, rd_b, ra_a, ra_b,
-                    mv_a, mv_b, ma_a, ma_b, mav_a, mav_b,
+                    rv_k,  rd_k, ra_k, mv_k, ma_k, mav_k, sgd_k, od_k,
                     "a", num_grid_x, num_grid_y,
-                    search_range_x, search_range_y,
-                    k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, k_pt, d_t,
+                    search_range_x, search_range_y, d_t,
                     relative_angle_a)
         human_a = Robot(
             subgoals, initial_state_a, planner_a, d_t,
@@ -222,9 +208,9 @@ if __name__ == '__main__':
 #            plt.draw()
 #            print("--------------------------------------------------------------")
             n += 1  # インクリメント
-        print("--------------------------------------------------------------")
+#        print("--------------------------------------------------------------")
 
-        error_paras_match.setdefault(errors, ab)
+        error_paras_match.setdefault(errors, k)
         error_lst.append(errors)
         count += 1
 
