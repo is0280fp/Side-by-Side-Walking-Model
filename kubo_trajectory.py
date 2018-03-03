@@ -7,8 +7,8 @@ Created on Tue Feb  6 19:27:32 2018
 import numpy as np
 
 
-def load_default_trajectory(self):
-    self.ps = np.array(([
+def load_default_trajectory():
+    ps = np.array(([
                    [-0.53173167,  1.00566862],
                    [-0.64863302,  1.21137899],
                    [-0.69358629,  1.37081578],
@@ -63,7 +63,7 @@ def load_default_trajectory(self):
                    [ 1.33747574, -0.04594844],
                    [ 1.76581281, -0.10071683]
                  ]))
-    self.ps_for_d = np.array(([
+    ps_for_d = np.array(([
         [ 0.07360019, -0.11945583],
         [-0.11690135,  0.20571037],
         [-0.04495327,  0.15943679],
@@ -118,6 +118,8 @@ def load_default_trajectory(self):
         [-0.07870202, -0.00499155],
         [ 0.42833707, -0.05476839]
         ]))
+    return (ps, ps_for_d)
+
 
 if __name__ == '__main__':
     d_lst = []

@@ -8,8 +8,8 @@ Created on Tue Feb  6 19:33:27 2018
 import numpy as np
 
 
-def load_default_trajectory(self):
-    self.ps = np.array(([
+def load_default_trajectory():
+    ps = np.array(([
             [-0.77703479856881415, 1.4993181096841063],
              [-0.70776038682731871, 1.4170221119724254],
              [-0.68260690865884658, 1.4206095214452887],
@@ -52,7 +52,7 @@ def load_default_trajectory(self):
              [2.4721016275926509, -0.07533703002757332]
              ]))
 
-        self.ps_for_d = np.array([[[-0.03665494,  0.12333371],
+    ps_for_d = np.array([[[-0.03665494,  0.12333371],
         [ 0.06927441, -0.082296  ],
         [ 0.02515348,  0.00358741],
         [ 0.06299356, -0.02420615],
@@ -92,6 +92,7 @@ def load_default_trajectory(self):
         [-0.48105966,  0.04715897],
         [ 0.39440152,  0.00156077],
         [ 0.13468202,  0.01727558]]])
+    return (ps, ps_for_d)
 
 if __name__ == '__main__':
     d_lst = []
