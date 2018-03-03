@@ -6,6 +6,7 @@ Created on Tue Feb  6 19:33:27 2018
 """
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def load_default_trajectory():
