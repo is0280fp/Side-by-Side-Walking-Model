@@ -84,8 +84,7 @@ def make_trajectory(ps):
 
 
 if __name__ == '__main__':
-    # 表描画
-    #    実測値
+#    テスト用の簡単な軌跡
     trajectory_a = make_trajectory([
             [0.98094249456, 0.731414990608],
             [0.88094249456, 0.631414990608],
@@ -96,7 +95,7 @@ if __name__ == '__main__':
             [1.58094249456, -0.831414990608],
             [1.46679422611, -0.745349506114]
             ])
-#    テスト用の簡単な軌跡
+
 ##    KUBO
 #    trajectory_a = make_trajectory([
 #            [-1.88094249456, 1.931414990608],
@@ -108,10 +107,7 @@ if __name__ == '__main__':
 #            [-0.53173167,  1.00566862],
 #            [-0.64863302,  1.21137899]
 #            ])
-#    テスト用のゴール
-#    subgoals = [np.array([-0.5, 3])]
-#    KUBO
-    subgoals = [np.array([2.0, -0.2])]
+
     obstacles = []
 
     d_t = 0.1
@@ -157,9 +153,9 @@ if __name__ == '__main__':
                 k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, k_pt, d_t,
                 relative_angle_a, scraper)
     human_a = Robot(
-        subgoals, initial_state_a, planner_a, d_t, trajectory_a, trajectory_b)
+        initial_state_a, planner_a, d_t, trajectory_a, trajectory_b)
 
-    human_b = Human(subgoals, initial_state_b, d_t, trajectory_b, trajectory_a)
+    human_b = Human(initial_state_b, d_t, trajectory_b, trajectory_a)
 
     logger = Logger(length_step)
 

@@ -94,7 +94,7 @@ class AgentRobot(object):
 
 class AgentHuman(object):
     def __init__(
-                self, subgoals, initial_state, d_t=0.03,
+                self, initial_state, d_t=0.03,
                 trajectory_me=None, trajectory_you=None):
         if trajectory_me is not None:
             self.trajectory_me = trajectory_me[:-1]
@@ -106,7 +106,6 @@ class AgentHuman(object):
         else:
             self.trajectory_you = []
         self.s = initial_state
-        self.subgoal = subgoals[-1]
         self.d_t = d_t
 
     def measure(self, s_me, s_you=None):
@@ -160,11 +159,11 @@ class Robot(AgentRobot):
 # plotする範囲を指定、plot数も指定
 class Human(AgentHuman):
     def __init__(
-            self, subgoals, initial_state, d_t=0.03,
+            self, initial_state, d_t=0.03,
             trajectory_me=None, trajectory_you=None, filepath=None):
         super(Human, self).__init__(
-            subgoals, initial_state, d_t=0.03,
-            trajectory_me=None, trajectory_you=None)
+                initial_state, d_t=0.03,
+                trajectory_me=None, trajectory_you=None)
         if filepath is None:
 #            self.ps, self.ps_for_d = load_default_trajectory()
             self.load_default_trajectory()
