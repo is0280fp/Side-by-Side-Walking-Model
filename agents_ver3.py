@@ -18,7 +18,7 @@ from decide_robot_absolute_position import decide_robot_absolute_position
 
 
 class AgentRobot(object):
-    def __init__(self, subgoals, initial_state,
+    def __init__(self, initial_state,
                  planner, d_t=0.1, trajectory_me=None, trajectory_you=None):
         if trajectory_me is not None:
             self.trajectory_me = trajectory_me[:-1]
@@ -31,7 +31,6 @@ class AgentRobot(object):
             self.trajectory_you = []
 
         self.s = initial_state
-        self.subgoals = subgoals
         self.d_t = d_t
         self.planner = planner
 
