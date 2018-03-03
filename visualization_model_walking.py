@@ -178,11 +178,10 @@ if __name__ == '__main__':
     d_num_for_avg = 15
     d_lst = []
     prev_p = np.array([1.46679422611, -0.745349506114])
-    subgoals = [np.array([-0.2, 3.0])]
     d_t = 0.1
     social_distance = 1.5
     human_b = Human(
-                subgoals, initial_state_b, d_t, trajectory_b, trajectory_a)
+                initial_state_b, d_t, trajectory_b, trajectory_a)
     robot = Robot()
     robot.load_default_trajectory()
     error = []
