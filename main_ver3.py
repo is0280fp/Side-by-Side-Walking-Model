@@ -147,7 +147,7 @@ if __name__ == '__main__':
 
     human_b = Human(subgoals, initial_state_b, d_t,
                     trajectory_b, trajectory_a,
-                    "C:/Users/yume/Desktop/URG-40LX/2017.09.27-14.30.36_nakamura.npy")
+                    "C:/Users/yume/Desktop/URG-40LX/2017.09.27-14.57.16_kubo.npy")
 #    human_b = Human(subgoals, initial_state_b, d_t,
 #                    trajectory_b, trajectory_a)
 
