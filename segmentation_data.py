@@ -8,7 +8,6 @@ Created on Wed Nov 15 18:50:23 2017
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import product
-from sklearn.metrics import pairwise_distances_argmin_min
 
 
 def segmentation(background_points, current_scan, threshold):
@@ -29,11 +28,9 @@ def segmentation(background_points, current_scan, threshold):
     current_fg = []
     current_bg = []
 
-    for j, point in enumerate(current_scan):
-        _, nearest_distance = pairwise_distances_argmin_min(
-                point, background_points)
-#        nearest_distance = \
-#        ((point[None, None, :] - background_points) ** 2).sum(2).min(1) ** 0.5
+    for point in current_scan:
+        nearest_distance = \
+        ((point[None, None, :] - background_points) ** 2).sum(2).min(1) ** 0.5
         nearest_distance_scholar.append(np.linalg.norm(nearest_distance))
 
     for i, raw_point in enumerate(current_scan):
@@ -51,7 +48,8 @@ if __name__ == '__main__':
     human_center_x = []
     human_center_y = []
 
-    sequence_scans = np.load("C:/Users/yume/Desktop/URG-40LX/2017.09.27-14.57.16_kubo.npy")
+    sequence_scans = np.load(
+            "C:/Users/yume/Desktop/URG-40LX/2017.09.27-14.57.16_kubo.npy")
     background_points = sequence_scans[0].transpose()
     for i, current_scan in enumerate(sequence_scans):
         current_scan = current_scan.transpose()
