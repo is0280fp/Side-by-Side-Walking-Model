@@ -9,6 +9,7 @@ import numpy as np
 import copy
 from decide_robot_absolute_position import avg_vector
 from decide_robot_absolute_position import decide_robot_absolute_position
+from geometry import absolute_angle
 #from kubo_trajectory import load_default_trajectory
 #from matsushita_trajectory import load_default_trajectory
 #from kishimoto_trajectory import load_default_trajectory
@@ -84,6 +85,15 @@ class AgentRobot(object):
     #  現在位置を次回位置に移動する
     def move(self):
         s = self.s
+        #  車体半径0.13mの時
+        d = 0.13
+        #  角速度
+        omega = absolute_angle(self.s.p, self.s.p + self.v)
+        #  速度
+        v = np.linalg.norm(self.v)
+        #  右車輪、左車輪に与える速度を計算
+        v_r = v - omega * d
+        v_l = v + omega * d
         s.p = self.s.p + self.v
         self.s.d = self.v
 
