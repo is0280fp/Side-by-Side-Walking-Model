@@ -113,21 +113,24 @@ if __name__ == '__main__':
     obstacles = []
 
     d_t = 0.1
-    num_grid_x = 10
-    num_grid_y = 10
+    num_grid_x = 7
+    num_grid_y = 7
     search_range_x = 0.2
     search_range_y = 0.2
 
     k_o = 0
-    k_rv = 0.0
-    k_rd = 0.2
-    k_ra = 0.5  # ra = relative_angle
-    k_s = 0.5
-    k_ma = 0.0
-    k_mv = 0.0
-    k_mw = 0.0
+
+    k_rd = 1.01
+    k_ra = 2.01  # ra = relative_angle
+    k_s = 3.0
+    k_mv = 0.01
+
+    k_ma = 0.1
+    k_rv = 0.1
+    k_mw = 0.1
+
     k_pt = 0  # 新しいfactor
-    length_step = 52
+    length_step = 44
     relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
 
