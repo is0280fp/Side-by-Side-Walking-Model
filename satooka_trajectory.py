@@ -56,7 +56,7 @@ def load_default_trajectory():
        [ 2.11534984, -0.03074588]
              ]))
 
-     ps_for_d = np.array([[[-0.05743556,  0.12765584],
+    ps_for_d = np.array([[[-0.05743556,  0.12765584],
         [ 0.05473858, -0.05246328],
         [ 0.08259747, -0.11736267],
         [ 0.03182366, -0.00067713],
@@ -103,9 +103,6 @@ def load_default_trajectory():
 
 
 if __name__ == '__main__':
-    d_lst = []
-    prev_p = np.array([-0.6567233,  1.24041562])
-    for p in load_default_trajectory():
-        d = p - prev_p
-        d_lst.append(d)
-        prev_p = p
+    ps, ds_for_d = load_default_trajectory()
+    for p in ps:
+        plt.plot(p[0], p[1], "*", color='#ff7f00')
