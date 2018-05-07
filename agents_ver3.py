@@ -63,9 +63,9 @@ class AgentRobot(object):
                 temp_lst.append(self.d_lst[-1 - i])
             d_sum = np.sum(np.array(temp_lst), axis=0)
         s.d = avg_vector(d_sum, d_num_for_avg)
-        ideal_x_me, ideal_y_me = decide_robot_absolute_position(
+        ideal_p_me = decide_robot_absolute_position(
                 s.p, s.d, social_distance)
-        return np.array([ideal_x_me, ideal_y_me])
+        return np.array([ideal_p_me[0], ideal_p_me[1]])
 
     #  現在位置を観測
     def measure(self, s_me, s_you, obstacle):
@@ -295,14 +295,10 @@ class Human(AgentHuman):
 
 
 if __name__ == '__main__':
-
-    subgoals = np.array([
-            [-0.2, 3.0]
-            ])
     initial_state_b = np.array([1.46679422611, -0.745349506114])
-    human_a = Human(subgoals, initial_state_b)
+    human_a = Human(initial_state_b)
     assert(human_a.ps.ndim == 2)
     assert(human_a.ps.shape[1] == 2)
-    human_a = Human(subgoals, initial_state_b, "2017.09.27-14.57.16_kubo.npy")
+    human_a = Human(initial_state_b, "2017.09.27-14.57.16_kubo.npy")
     assert(human_a.ps.ndim == 2)
     assert(human_a.ps.shape[1] == 2)
