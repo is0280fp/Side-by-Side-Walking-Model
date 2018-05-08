@@ -20,6 +20,8 @@ def changing_graph_per_step(f, name, y_label, x_label):
     plt.show()
 
 
+#  x,yはベクトルの始点、ベクトルは一つの始点から二つ引ける
+#  x, yを始点に成分(u[0], v[0])と成分(u[1], v[1])のベクトルが引ける
 def vector_graph(x, y, u, v):
     plt.quiver(x, y, u[0], v[0], color="b",
                angles='xy', scale_units='xy', scale=1)
