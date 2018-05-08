@@ -10,6 +10,7 @@ import copy
 from decide_robot_absolute_position import avg_vector
 from decide_robot_absolute_position import decide_robot_absolute_position
 from geometry import absolute_angle
+from utility_visualization import vector_graph
 #from kubo_trajectory import load_default_trajectory
 #from matsushita_trajectory import load_default_trajectory
 #from kishimoto_trajectory import load_default_trajectory
@@ -94,8 +95,12 @@ class AgentRobot(object):
         #  右車輪、左車輪に与える速度を計算
         v_r = v - omega * d
         v_l = v + omega * d
+        vector_graph(self.s.p[0], self.s.p[1],
+                     np.array([0, self.v[0]*10]), np.array([1, self.v[1]*10]))
+        #  現在状態（位置、進行方向ベクトル）の更新
         s.p = self.s.p + self.v
         self.s.d = self.v
+
 
     def __repr__(self):
         return repr(self.s)
