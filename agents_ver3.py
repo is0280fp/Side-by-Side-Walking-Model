@@ -88,13 +88,15 @@ class AgentRobot(object):
         s = self.s
         #  車体半径0.13mの時
         d = 0.13
+        #  車輪半径0.25cmの時
+        r = 0.25
         #  角速度
         omega = absolute_angle(self.s.p, self.s.p + self.v)
         #  速度
         v = np.linalg.norm(self.v)
         #  右車輪、左車輪に与える速度を計算
-        v_r = v - omega * d
-        v_l = v + omega * d
+        v_r = (v - omega * d)/r
+        v_l = (v + omega * d)/r
         vector_graph(self.s.p[0], self.s.p[1],
                      np.array([0, self.v[0]*10]), np.array([1, self.v[1]*10]))
         #  現在状態（位置、進行方向ベクトル）の更新
