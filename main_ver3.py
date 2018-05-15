@@ -167,8 +167,8 @@ if __name__ == '__main__':
         logger.log_follower(human_b.s)
 
         print("step", n)
-        logger.display()
-        logger.print()
+#        logger.display()
+#        logger.print()
         n += 1  # インクリメント
 
         for utility, factor in zip(

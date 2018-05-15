@@ -52,6 +52,11 @@ class AgentRobot(object):
         self.ra_lst = []
         self.d_lst = []
 
+        self.p_x_lst = []
+        self.p_y_lst = []
+        self.v_x_lst = []
+        self.v_y_lst = []
+
     def get_current_subgoal(self, s):
         temp_lst = []
         d_num_for_avg = 15
@@ -97,8 +102,17 @@ class AgentRobot(object):
         #  右車輪、左車輪に与える速度を計算
         v_r = (v - omega * d)/r
         v_l = (v + omega * d)/r
+        #   現在の進行方向を表示する
         vector_graph(self.s.p[0], self.s.p[1],
                      np.array([0, self.v[0]*10]), np.array([1, self.v[1]*10]))
+        #  進行方向の軌跡を表示する
+        self.p_x_lst.append(self.s.p[0])
+        self.p_y_lst.append(self.s.p[1])
+        self.v_x_lst.append(self.v[0])
+        self.v_y_lst.append(self.v[1])
+        vector_graph(np.array(self.p_x_lst), np.array(self.p_y_lst),
+                     np.array([np.zeros(np.array(self.v_x_lst).shape), np.array(self.v_x_lst)*10]),
+                     np.array([np.zeros(np.array(self.v_y_lst).shape)+1, np.array(self.v_y_lst)*10]))
         #  現在状態（位置、進行方向ベクトル）の更新
         s.p = self.s.p + self.v
         self.s.d = self.v
