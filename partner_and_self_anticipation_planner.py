@@ -99,7 +99,7 @@ class PartnerSelfAnticipationPlanner(object):
 
         utility = np.array(utility)
 
-        utility_color_map(utility, self.num_grid_x, self.num_grid_y, "utility")
+#        utility_color_map(utility, self.num_grid_x, self.num_grid_y, "utility")
 
         predicted_p_you, predicted_p_me = each_other_p[utility.argmax()]
         return predicted_p_me
