@@ -21,6 +21,17 @@ from factors import AngularVelocity
 from factors import Acceleration
 
 
+def making_grid(num_grid_x, num_grid_y, search_range_x, search_range_y):
+        # trajectoryの基の7*7grid作る(中心を(0,0)とする)
+        x = np.linspace(-search_range_x, search_range_x, num_grid_x)
+        y = np.linspace(-search_range_y, search_range_y, num_grid_y)
+        x, y = np.meshgrid(x, y)
+        x = x.reshape(-1, 1)
+        y = y.reshape(-1, 1)
+        grid_points = np.hstack((x, y))
+        return grid_points
+
+
 class PartnerSelfAnticipationPlanner(object):
     def __init__(self, name=None, num_grid_x=7, num_grid_y=7,
                  search_range_x=0.6, search_range_y=0.6,
@@ -57,21 +68,21 @@ class PartnerSelfAnticipationPlanner(object):
         prev_s_you = trajectory_you[-2]
         obstacle = obstacles
 
-        grid_points_me = self.making_grid(
+        grid_points_me = making_grid(
                 self.num_grid_x, self.num_grid_y,
                 self.search_range_x, self.search_range_y)
-        grid_points_you = self.making_grid(
+        grid_points_you = making_grid(
                 self.num_grid_x, self.num_grid_y,
                 self.search_range_x, self.search_range_y)
 
         # 予測位置を中心としたグリッドを作成
         next_s_me = self.linear_extrapolation(trajectory_me)
-        grid_points_me = self.making_grid(
+        grid_points_me = making_grid(
                 self.num_grid_x, self.num_grid_y,
                 self.search_range_x, self.search_range_y)
         # 予測位置を中心としたグリッドを作成
         next_s_you = self.linear_extrapolation(trajectory_you)
-        grid_points_you = self.making_grid(
+        grid_points_you = making_grid(
                 self.num_grid_x, self.num_grid_y,
                 self.search_range_x, self.search_range_y)
 
@@ -122,17 +133,6 @@ class PartnerSelfAnticipationPlanner(object):
         next_d = trajectory[-1].d + temp
         next_d = next_d / np.linalg.norm(next_d)
         return AgentState(next_p, next_d)
-
-    def making_grid(self,
-                    num_grid_x, num_grid_y, search_range_x, search_range_y):
-        # trajectoryの基の7*7grid作る(中心を(0,0)とする)
-        x = np.linspace(-search_range_x, search_range_x, num_grid_x)
-        y = np.linspace(-search_range_y, search_range_y, num_grid_y)
-        x, y = np.meshgrid(x, y)
-        x = x.reshape(-1, 1)
-        y = y.reshape(-1, 1)
-        grid_points = np.hstack((x, y))
-        return grid_points
 
     def calculation_utility(
             self, states_me, states_you, subgoal, obstacle):
