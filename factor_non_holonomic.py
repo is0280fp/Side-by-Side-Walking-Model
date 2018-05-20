@@ -5,7 +5,7 @@ Created on Fri May 18 12:54:55 2018
 @author: yume
 """
 
-class BaseFactor(object):
+class BaseFactorNonHolonomic(object):
     def __init__(self, scraper, a, b, c, d_t):
         self.a = a
         self.b = b
@@ -14,23 +14,22 @@ class BaseFactor(object):
         self.scraper = scraper
         assert self.d_t > 0
 
-    def factor(self, states_me, states_you=None, turn_rad):
+    def factor_non_holonomic(self, states_me, turn_rad):
         raise NotImplementedError("Do not use this class directoly")
 
-    def score(self, states_me, states_you=None, turn_rad):
-        x = self.factor(states_me, states_you, turn_rad)
-        return self.f(x)
+    def score_non_holonomic(self, states_me, turn_rad):
+        x = self.factor_non_holonomic(states_me, turn_rad)
+        return self.f_non_holonomic(x)
 
-    def f(self, x):
+    def f_non_holonomic(self, x):
         """
         eq. (9)
         unit test required
         """
 #        assert not np.any(np.isnan(x))
-        if x is True:
-            f_x = 0
-        if x is False:
-            f_x = 0
+        if (x == True).all():
+            return 0
+        else:
+            return 0
 #        assert not np.any(np.isnan(f_x)), "{}, {}, {}, {}, {}, {}, {}".format(
 #                f_x, x, self.a, self.b, self.c, self, type(x))
-        return f_x
