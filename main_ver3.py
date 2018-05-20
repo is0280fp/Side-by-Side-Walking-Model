@@ -99,6 +99,7 @@ if __name__ == '__main__':
     obstacles = []
 
     d_t = 0.1
+    turn_rad = 0.13
     num_grid_x = 7
     num_grid_y = 7
     search_range_x = 0.2
@@ -139,7 +140,7 @@ if __name__ == '__main__':
     planner_a = p_and_s_anticipation_p.PartnerSelfAnticipationPlanner(
                 "a", num_grid_x, num_grid_y, search_range_x, search_range_y,
                 k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, k_pt, d_t,
-                relative_angle_a, scraper)
+                relative_angle_a, turn_rad, scraper)
     human_a = Robot(
         initial_state_a, planner_a, d_t, trajectory_a, trajectory_b)
 

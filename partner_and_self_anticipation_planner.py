@@ -19,6 +19,7 @@ from factors import RelativeAngle
 from factors import Velocity
 from factors import AngularVelocity
 from factors import Acceleration
+from factors_non_holonomic import LimitedArea
 
 
 def making_grid(num_grid_x, num_grid_y, search_range_x, search_range_y):
@@ -37,7 +38,7 @@ class PartnerSelfAnticipationPlanner(object):
                  search_range_x=0.6, search_range_y=0.6,
                  k_o=0.11, k_rv=0.01, k_rd=0.25, k_ra=0.32, k_s=0.2,
                  k_ma=0.01, k_mv=0.05, k_mw=0.01, k_pt=0,
-                 d_t=0.03, relative_a=None, scraper=None):
+                 d_t=0.03, relative_a=None, turn_rad=None, scraper=None):
         self.name = name
         self.num_grid_x = num_grid_x
         self.num_grid_y = num_grid_y
@@ -54,6 +55,7 @@ class PartnerSelfAnticipationPlanner(object):
         self.k_pt = k_pt
         self.d_t = d_t
         self.relative_a = np.deg2rad(relative_a)
+        self.turn_rad = turn_rad
         self.scraper = scraper
 
     def decide_action(self, trajectory_me, trajectory_you,
@@ -110,7 +112,7 @@ class PartnerSelfAnticipationPlanner(object):
 
         utility = np.array(utility)
 
-#        utility_color_map(utility, self.num_grid_x, self.num_grid_y, "utility")
+        utility_color_map(utility, self.num_grid_x, self.num_grid_y, "utility")
 
         predicted_p_you, predicted_p_me = each_other_p[utility.argmax()]
         return predicted_p_me
@@ -153,6 +155,7 @@ class PartnerSelfAnticipationPlanner(object):
         a_you = Acceleration(self.scraper, a=0.20, b=1.0, c=0.0, d_t=0.03)
         av_me = AngularVelocity(self.scraper, a=0.7, b=4.4, c=0.0, d_t=0.03)
         av_you = AngularVelocity(self.scraper, a=0.7, b=4.4, c=0.0, d_t=0.03)
+        limited_area = LimitedArea(self.scraper, a=0.0, b=0.0, c=0.0, d_t=0.03)
 
         f_o_me = dto_me.score(states_me, None, subgoal, obstacle)
         f_o_you = dto_you.score(states_me, None, subgoal, obstacle)
@@ -167,6 +170,7 @@ class PartnerSelfAnticipationPlanner(object):
         f_ma_you = a_you.score(states_you, None, None, None)
         f_mw_me = av_me.score(states_me, None, None, None)
         f_mw_you = av_you.score(states_you, None, None, None)
+        f_lmd_area = limited_area.score_non_holonomic(states_me, self.turn_rad)
 
         o_me_dis = dto_me.factor(states_me, None, subgoal, obstacle)
         o_you_dis = dto_you.factor(states_me, None, subgoal, obstacle)
@@ -182,6 +186,7 @@ class PartnerSelfAnticipationPlanner(object):
         ma_you_gal = a_you.factor(states_you, None, None, None)
         mw_me_rad = av_me.factor(states_me, None, None, None)
         mw_you_rad = av_you.factor(states_you, None, None, None)
+#        ltd_area = limited_area.factor_non_holonomic(states_me, self.turn_rad)
 
         ra.pass_values()
 
@@ -195,7 +200,8 @@ class PartnerSelfAnticipationPlanner(object):
         utility_me = (self.k_o * f_o_me + self.k_s * f_s_me +
                       self.k_rv * f_rv + self.k_rd * f_rd + self.k_ra * f_ra +
                       self.k_ma * f_ma_me +
-                      self.k_mv * f_mv_me + self.k_mw * f_mw_me)
+                      self.k_mv * f_mv_me + self.k_mw * f_mw_me +
+                      self.k_pt * f_lmd_area)
         utility_you = (self.k_o * f_o_you + self.k_s * f_s_you +
                        self.k_rv * f_rv + self.k_rd * f_rd +
                        self.k_ra * f_ra + self.k_ma * f_ma_you +
