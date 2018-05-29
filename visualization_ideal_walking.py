@@ -69,18 +69,29 @@ if __name__ == '__main__':
             [1.58094249456, -0.831414990608],
             [1.46679422611, -0.745349506114]
             ])
+#    #    KUBO
+#    trajectory_a = make_trajectory([
+#            [-1.88094249456, 1.931414990608],
+#            [-1.68094249456, 1.831414990608],
+#            [-1.45264596,  1.75928402]
+#            ])
+#    trajectory_b = make_trajectory([
+#            [-0.60533186,  1.12512445],
+#            [-0.53173167,  1.00566862],
+#            [-0.64863302,  1.21137899]
+#            ])
     initial_state_b = trajectory_b[-1]
     social_distance = 1.5
-    subgoals = [np.array([-0.2, 3.0])]
     d_t = 0.1
     prev_p = np.array([1.46679422611, -0.745349506114])
+#    prev_p = np.array([-0.64863302,  1.21137899])
     d_num_for_avg = 15
     d_lst = []
     l_p = []
     f_p = []
 
     human_b = Human(
-                subgoals, initial_state_b, d_t, trajectory_b, trajectory_a)
+                initial_state_b, d_t, trajectory_b, trajectory_a)
 
     while n < length_step:
         temp_lst = []

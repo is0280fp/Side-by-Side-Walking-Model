@@ -46,7 +46,7 @@ class PartnerSelfAnticipationPlanner(object):
         self.scraper = scraper
 
     def decide_action(self, trajectory_me, trajectory_you,
-                      subgoals, obstacles):
+                      subgoal, obstacles):
         utility_me = []
         utility_you = []
         utility = []
@@ -55,7 +55,6 @@ class PartnerSelfAnticipationPlanner(object):
         s_you = trajectory_you[-1]
         prev_s_me = trajectory_me[-2]  # 真の位置
         prev_s_you = trajectory_you[-2]
-        subgoal = subgoals
         obstacle = obstacles
 
         grid_points_me = self.making_grid(

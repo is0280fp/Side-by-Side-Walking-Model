@@ -6,10 +6,11 @@ Created on Tue Feb  6 19:33:27 2018
 """
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 
-def load_default_trajectory(self):
-    self.ps = np.array(([
+def load_default_trajectory():
+    ps = np.array(([
        [-0.71415886,  1.36807146],
        [-0.65942028,  1.31560818],
        [-0.57682281,  1.19824551],
@@ -55,7 +56,7 @@ def load_default_trajectory(self):
        [ 2.11534984, -0.03074588]
              ]))
 
-     self.ps_for_d = np.array([[[-0.05743556,  0.12765584],
+    ps_for_d = np.array([[[-0.05743556,  0.12765584],
         [ 0.05473858, -0.05246328],
         [ 0.08259747, -0.11736267],
         [ 0.03182366, -0.00067713],
@@ -98,11 +99,10 @@ def load_default_trajectory(self):
         [-0.12904733,  0.02118181],
         [-0.23547802,  0.02956156],
         [-0.02976151,  0.0270345 ]]])
+    return (ps, ps_for_d)
+
 
 if __name__ == '__main__':
-    d_lst = []
-    prev_p = np.array([-0.6567233 ,  1.24041562])
-    for p in load_default_trajectory():
-        d = p - prev_p
-        d_lst.append(d)
-        prev_p = p
+    ps, ds_for_d = load_default_trajectory()
+    for p in ps:
+        plt.plot(p[0], p[1], "*", color='#ff7f00')

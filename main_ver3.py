@@ -38,11 +38,11 @@ class Logger(object):
 #        relative_distance = np.sqrt((l_p - f_p) * 2)
         plt.plot(*l_p.T, "-o", label="Robot")
         plt.plot(*f_p.T, "*", label="Human")
-        plt.plot(-0.2, 3, "^", label="Goal")
+#        plt.plot(-0.2, 3, "^", label="Goal")
 #        plt.plot(self.obstacles_p.T[0], self.obstacles_p.T[1], "^",
 #                 label="obstacle")
 #        print("relative_distance", relative_distance[-1])
-        plt.xticks(np.arange(-1.0, 3.0, 0.5))
+        plt.xticks(np.arange(-2.0, 3.0, 0.5))
         plt.yticks(np.arange(-0.8, 5.5, 0.5))  # 表の軸を0~20に固定
         plt.grid()
         plt.legend()
@@ -84,8 +84,7 @@ def make_trajectory(ps):
 
 
 if __name__ == '__main__':
-    # 表描画
-    #    実測値
+#    テスト用の簡単な軌跡
     trajectory_a = make_trajectory([
             [0.98094249456, 0.731414990608],
             [0.88094249456, 0.631414990608],
@@ -96,9 +95,7 @@ if __name__ == '__main__':
             [1.58094249456, -0.831414990608],
             [1.46679422611, -0.745349506114]
             ])
-#    テスト用の簡単な軌跡
 
-    subgoals = [np.array([-0.5, 3])]
     obstacles = []
 
     d_t = 0.1
@@ -119,7 +116,7 @@ if __name__ == '__main__':
     k_mw = 0.1
 
     k_pt = 0  # 新しいfactor
-    length_step = 52
+    length_step = 44
     relative_angle_a = 0
     relative_angle_b = 180 - relative_angle_a
 
@@ -144,9 +141,9 @@ if __name__ == '__main__':
                 k_o, k_rv, k_rd, k_ra, k_s, k_ma, k_mv, k_mw, k_pt, d_t,
                 relative_angle_a, scraper)
     human_a = Robot(
-        subgoals, initial_state_a, planner_a, d_t, trajectory_a, trajectory_b)
+        initial_state_a, planner_a, d_t, trajectory_a, trajectory_b)
 
-    human_b = Human(subgoals, initial_state_b, d_t, trajectory_b, trajectory_a)
+    human_b = Human(initial_state_b, d_t, trajectory_b, trajectory_a)
 
     logger = Logger(length_step)
 
@@ -157,7 +154,7 @@ if __name__ == '__main__':
 #        print("n", n)
     while n < length_step:
 
-        human_a.measure(human_a.s, human_b.s, subgoals, obstacles)
+        human_a.measure(human_a.s, human_b.s, obstacles)
         human_b.measure(human_b.s, human_a.s)
 
         human_a.decide_action()
