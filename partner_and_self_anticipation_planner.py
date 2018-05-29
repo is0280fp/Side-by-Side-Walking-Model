@@ -37,7 +37,7 @@ class PartnerSelfAnticipationPlanner(object):
     def __init__(self, name=None, num_grid_x=7, num_grid_y=7,
                  search_range_x=0.6, search_range_y=0.6,
                  k_o=0.11, k_rv=0.01, k_rd=0.25, k_ra=0.32, k_s=0.2,
-                 k_ma=0.01, k_mv=0.05, k_mw=0.01, k_pt=0,
+                 k_ma=0.01, k_mv=0.05, k_mw=0.01, k_la=0,
                  d_t=0.03, relative_a=None, turn_rad=None, scraper=None):
         self.name = name
         self.num_grid_x = num_grid_x
@@ -52,7 +52,7 @@ class PartnerSelfAnticipationPlanner(object):
         self.k_ma = k_ma
         self.k_mv = k_mv
         self.k_mw = k_mw
-        self.k_pt = k_pt
+        self.k_la = k_la
         self.d_t = d_t
         self.relative_a = np.deg2rad(relative_a)
         self.turn_rad = turn_rad
@@ -201,7 +201,7 @@ class PartnerSelfAnticipationPlanner(object):
                       self.k_rv * f_rv + self.k_rd * f_rd + self.k_ra * f_ra +
                       self.k_ma * f_ma_me +
                       self.k_mv * f_mv_me + self.k_mw * f_mw_me +
-                      self.k_pt * f_lmd_area)
+                      self.k_la * f_lmd_area)
         utility_you = (self.k_o * f_o_you + self.k_s * f_s_you +
                        self.k_rv * f_rv + self.k_rd * f_rd +
                        self.k_ra * f_ra + self.k_ma * f_ma_you +
@@ -231,12 +231,12 @@ if __name__ == '__main__':
     k_ma = 0.01
     k_mv = 0.05
     k_mw = 0.01
-    k_pt = 0
+    k_la = 0
     subgoals_p = (4, 4)
     obstacles_p = (3, 3)
     planner = PartnerSelfAnticipationPlanner(
             num_grid_x, num_grid_y, search_range_x,
             search_range_y, k_o, k_rv, k_rd,
-            k_ra, k_s, k_ma, k_mv, k_mw, k_pt, d_t)
+            k_ra, k_s, k_ma, k_mv, k_mw, k_la, d_t)
     print(planner.decide_action(
             trajectory_me, trajectory_you, subgoals_p, obstacles_p))

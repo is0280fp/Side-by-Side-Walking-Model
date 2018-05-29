@@ -30,7 +30,6 @@ class LimitedArea(BaseFactorNonHolonomic):
         e, d = normal(a, b, p_me)
         one_p = p_on_line(e, d)
         center_p = other_p(p_me, one_p, turn_rad)
-#        flag = np.array([dis_compare_r(next_p_me, center_p[0], turn_rad),
-#                         dis_compare_r(next_p_me, center_p[1], turn_rad)])
-        flag = np.array([True, True])
+        flag = np.array([dis_compare_r(next_p_me, center_p[0], turn_rad),
+                         dis_compare_r(next_p_me, center_p[1], turn_rad)])
         return flag
