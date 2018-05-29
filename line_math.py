@@ -18,14 +18,13 @@ def dis_compare_r(p0, p1, r):
         return False
 
 
+# Numpy implementation
 #  点p1と点p2を結ぶ直線上のp1=(x1, y1)から同じ直線上で距離r離れた点を求める
 def other_p(p1, p2, r):
-    center = sg.Point(p1[0], p1[1])
-    radius = r
-
-    circle = sg.Circle(center, radius)
-    line = sg.Line(sg.Point(p1[0], p1[1]), sg.Point(p2[0], p2[1]))
-    return np.array(sg.intersection(circle, line), np.float)
+    v12 = p2 - p1
+    distance = np.linalg.norm(v12)
+    unit_vector = v12 / distance
+    return np.array([p1 - r * unit_vector, p1 + r * unit_vector])
 
 
 #  直線方程式y=ax+bのx=3の時のyの値
