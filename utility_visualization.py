@@ -23,15 +23,15 @@ def changing_graph_per_step(f, name, y_label, x_label):
 #  x,yはベクトルの始点、ベクトルは一つの始点から二つ引ける
 #  x, yを始点に成分(u[0], v[0])と成分(u[1], v[1])のベクトルが引ける
 def vector_graph(x, y, u, v):
-    plt.quiver(x, y, u[0], v[0], color="b",
-               angles='xy', scale_units='xy', scale=1)
+#    plt.quiver(x, y, u[0], v[0], color="b",
+#               angles='xy', scale_units='xy', scale=1)
     plt.quiver(x, y, u[1], v[1], color="r",
                angles='xy', scale_units='xy', scale=1)
     plt.plot(x, y, "g*")
 #    x, yはベクトルの始点, u, vはベクトルの成分
     plt.title("blue = d_you,   red = v_yoko")
-    plt.xlim([-2, 2])
-    plt.ylim([-2, 2])
+    plt.xlim([-3, 3])
+    plt.ylim([-3, 3])
     plt.gca().set_aspect('equal')
     plt.grid()
     plt.xlabel("axis x (m)")
