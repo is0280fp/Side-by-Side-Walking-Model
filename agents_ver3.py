@@ -62,16 +62,19 @@ class AgentRobot(object):
         d_num_for_avg = 15
         social_distance = 1.5
 
+        #  d_lstは1ステップあたりの進行方向ベクトルの変化量を格納するリスト
         self.d_lst.append(s.d)
         if len(self.d_lst) < d_num_for_avg:
             d_sum = np.sum(np.array(self.d_lst), axis=0)
+            velocity_delta_avg = avg_vector(d_sum, len(self.d_lst))
         else:
             for i in range(d_num_for_avg):
                 temp_lst.append(self.d_lst[-1 - i])
             d_sum = np.sum(np.array(temp_lst), axis=0)
-        s.d = avg_vector(d_sum, d_num_for_avg)
+            velocity_delta_avg = avg_vector(d_sum, d_num_for_avg)
+
         ideal_p_me = decide_robot_absolute_position(
-                s.p, s.d, social_distance)
+                s.p, velocity_delta_avg, social_distance)
         return np.array([ideal_p_me[0], ideal_p_me[1]])
 
     #  現在位置を観測
