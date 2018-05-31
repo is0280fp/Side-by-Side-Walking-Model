@@ -19,6 +19,7 @@ def absolute_angle(p_base, p_top):
 def revision_theta(theta):
     """
     出力：角度
+    0°から360°以上を-180°から180°に範囲変換
     """
     theta += np.pi
     theta %= 2 * np.pi
@@ -28,6 +29,16 @@ def revision_theta(theta):
         theta -= np.pi
     r_a = theta
     return r_a
+
+
+def scope_transform(theta):
+    """
+    出力：角度
+    -180°から180°を0°から360°以上-に範囲変換
+    """
+    if theta < 0:
+        theta = np.pi*2 + theta
+    return theta
 
 
 def motion_velocity(p, next_p, d_t):
